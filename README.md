@@ -67,9 +67,8 @@ memefy/
    Create a `.env` file with:
 
    ```env
-   VITE_OPENAI_API_KEY=your_openai_key
-   VITE_FIREBASE_API_KEY=your_firebase_key
-   ```
+   REACT_APP_OPENAI_API_KEY=your_openai_key
+   REACT_APP_FIREBASE_API_KEY=your_firebase_key
 
 4. **Start the app**
 
