@@ -1,4 +1,4 @@
-# 🎭 Memefy - AI Meme Generator Web App
+# 🎭 Memeify.AI - AI Meme Generator Web App
 
 Memefy is a web-based AI meme generator that helps users create memes effortlessly. Simply enter a topic, choose from smart AI-generated captions, select a meme template, and customize or download your meme—all in one seamless flow.
 
