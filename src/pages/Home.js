@@ -4,13 +4,22 @@ import { signOut } from 'firebase/auth';
 import { toast } from 'react-toastify';
 import { auth, db } from '../firebase';
 import { doc, getDoc } from 'firebase/firestore';
-import CaptionInput from '../components/CaptionGenerator';
+import CaptionSelector from '../components/CaptionSelector';
 
 const Home = (props) => {
 let { user } = props;
 
 const [username, setUsername] = useState('');
 const navigate = useNavigate();
+
+const [selectedCaption, setSelectedCaption] = useState('');
+
+// Example captions array (replace with your actual data source)
+const captions = [
+  'When you realize it’s Monday again',
+  'Coding at 3am be like...',
+  'Me trying to debug my own code',
+];
 
   //fetch username on user change
   useEffect(() => {   
@@ -52,7 +61,11 @@ const navigate = useNavigate();
           <button onClick={handleLogin} className='bg-red-600 text-white px-4 py-2 rounded-md hover:bg-red-700 m-10 font-semibold'>Login</button>
         )}
         <div>
-          <CaptionInput />
+          <CaptionSelector 
+            captions={captions} 
+            selectedCaption={selectedCaption} 
+            setSelectedCaption={setSelectedCaption}
+          />
         </div>
     </div>
   )

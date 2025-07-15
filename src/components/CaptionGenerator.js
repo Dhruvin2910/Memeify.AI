@@ -2,12 +2,15 @@ import React, { useState, useEffect } from 'react';
 // import { toast } from 'react-toastify';
 import axios from 'axios';
 import { toast } from 'react-toastify';
+import CaptionSelector from './CaptionSelector';
+import Spinner from './Spinner'
 
 const CaptionGenerator = ({ onSubmit }) => {
   const [input, setInput] = useState('');
   const [buttonEnabled, setButtonEnabled] = useState(false);
   const [captions, setCaptions] = useState([]);
   const [loading, setLoading] = useState(false);
+  
 
   const OPENAI_KEY = process.env.REACT_APP_OPENAI_KEY;
   const handleGenerate = async () => {
@@ -77,9 +80,8 @@ const CaptionGenerator = ({ onSubmit }) => {
         </button>
       </div>
       <div>
-        {captions.map((cap, index) => (
-          <p key={index}>{cap}</p>
-        ))}
+        {loading && <Spinner />}
+        <CaptionSelector captions={captions} />
       </div>
     </div>
   );
