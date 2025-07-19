@@ -7,15 +7,15 @@ import { doc, getDoc } from 'firebase/firestore';
 import CaptionGenerator from '../components/CaptionGenerator';
 import CaptionSelector from '../components/CaptionSelector';
 
-const Home = (props) => {
-let { user } = props;
+const Home = ({ user, selectedMeme, setSelectedMeme, selectedCaption, setSelectedCaption}) => {
 
 const [username, setUsername] = useState('');
 const [memes, setMemes] = useState([]);
 const [captions, setCaptions] = useState([]);
+const [searchTerm, setSearchTerm] = useState('');
 const navigate = useNavigate();
 
-const [selectedCaption, setSelectedCaption] = useState('');
+
 const [isCaptionModalOpen, setIsCaptionModalOpen] = useState(false);
 const [isRegenerating, setIsRegenerating] = useState(false);
 const [lastUsedCaption, setLastUsedCaption] = useState('');
@@ -105,6 +105,16 @@ const [lastUsedCaption, setLastUsedCaption] = useState('');
     setIsRegenerating(false);
   };
 
+  const handleMemeSelect = (meme) => {
+    setSelectedMeme(meme);
+    console.log(selectedMeme);
+  }
+
+  const filteredMemes = memes.filter((meme) =>
+    meme.name.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+  
+
   return (
     <div className={`min-h-screen bg-gradient-to-br from-yellow-200 via-pink-200 to-purple-200 flex flex-col ${isCaptionModalOpen ? 'overflow-hidden' : ''}`}>
       {/* Modal Overlay */}
@@ -186,14 +196,27 @@ const [lastUsedCaption, setLastUsedCaption] = useState('');
           <div className="w-full md:w-2/3 flex flex-col items-center">
             <h2 className="text-2xl font-extrabold text-purple-700 mb-4 text-center">Choose a Meme Template</h2>
             <p className="text-sm text-gray-600 mb-6 text-center">Pick your favorite meme template to start creating!</p>
+            <input
+              type="text"
+              placeholder="Search memes..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="mb-4 px-4 py-2 border border-yellow-300 rounded-lg w-full max-w-sm shadow focus:outline-none focus:ring-2 focus:ring-purple-400"
+            />
+
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-6 max-h-[60vh] overflow-y-auto p-2 bg-white/70 rounded-xl shadow-inner border-2 border-yellow-200 w-full">
-              {memes.map((meme, index) => (
-                <div key={index} className="flex flex-col items-center bg-white rounded-lg shadow p-2 hover:scale-105 transition-transform cursor-pointer border border-pink-200">
+              {filteredMemes.map((meme, index) => (
+                <div
+                  onClick={() => handleMemeSelect(meme)}
+                  key={index}
+                  className={`flex flex-col items-center bg-white rounded-lg shadow p-2 hover:scale-105 transition-transform cursor-pointer border  ${selectedMeme && selectedMeme.id === meme.id ? 'border-4 border-purple-500 ring-2 ring-purple-300' : 'border-pink-200'}`}
+                >
                   <img src={meme.url} alt="template" className="w-full h-32 object-cover rounded mb-2"/>
                   <span className="text-xs text-gray-700 font-semibold text-center truncate w-full">{meme.name}</span>
                 </div>
               ))}
             </div>
+            <button onClick={() => navigate('/preview')}>Preview</button>
           </div>
         </div>
       </div>

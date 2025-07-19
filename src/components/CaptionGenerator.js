@@ -3,6 +3,7 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { toast } from 'react-toastify';
 import Spinner from './Spinner'
+import { getAuth } from 'firebase/auth';
 
 const CaptionGenerator = ({ onSubmit, selectedCaption, setSelectedCaption, captions, setCaptions, onCaptionsGenerated }) => {
   const [input, setInput] = useState('');
@@ -15,6 +16,17 @@ const CaptionGenerator = ({ onSubmit, selectedCaption, setSelectedCaption, capti
     setLoading(true);
 
     try{
+      const auth = getAuth();
+      const user = auth.currentUser;
+      if(!user) {
+        toast.error("User must be logged in...");
+        setLoading(false);
+        return;
+      }
+    }catch(err){
+      console.log(err);
+    }
+    try{
       const response = await axios.post(
         "https://api.openai.com/v1/chat/completions",
         {
@@ -22,7 +34,7 @@ const CaptionGenerator = ({ onSubmit, selectedCaption, setSelectedCaption, capti
           messages: [
             {
               role: "user",
-              content: `Give me 5 funny meme captions about: ${input}`,
+              content: `Give me 5 short and funny meme captions (under 120 characters) about: ${input}. Make them relatable and witty.`
             },
           ],
           temperature: 0.7,

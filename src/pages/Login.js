@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import { useNavigate } from 'react-router-dom';
-import { signInWithEmailAndPassword } from 'firebase/auth';
+import { signInWithEmailAndPassword, signOut } from 'firebase/auth';
 import { auth } from '../firebase';
 import { toast } from 'react-toastify';
 
@@ -9,12 +9,24 @@ const Login = () => {
     const [password, setPassword] = useState('');
 
     const Navigate = useNavigate();
+
+    const startSessionTimer = () => {
+      setTimeout(() => {
+        signOut(auth).then(()=>{
+          toast.error("Session expired. You've been logged out!");
+          window.location.href = "/login";
+        }).catch((err) => {
+          console.err("Error signing out:", err);
+        })
+      }, 1000*60*15);
+    }
     
     const handleLogin = async (e) => {
         e.preventDefault();
         try{
             await signInWithEmailAndPassword(auth, email, password);
             toast.success("Logged in Successfully!");
+            startSessionTimer();
             Navigate("/");
         }catch(err){
             console.log(err);
