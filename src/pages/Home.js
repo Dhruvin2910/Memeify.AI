@@ -1,15 +1,12 @@
 import React, { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom';
-import { signOut } from 'firebase/auth';
 import { toast } from 'react-toastify';
-import { auth, db } from '../firebase';
-import { doc, getDoc } from 'firebase/firestore';
 import CaptionGenerator from '../components/CaptionGenerator';
 import CaptionSelector from '../components/CaptionSelector';
+import Navbar from '../components/Navbar';
 
-const Home = ({ user, selectedMeme, setSelectedMeme, selectedCaption, setSelectedCaption}) => {
+const Home = ({ user, selectedMeme, setSelectedMeme, selectedCaption, setSelectedCaption }) => {
 
-const [username, setUsername] = useState('');
 const [memes, setMemes] = useState([]);
 const [captions, setCaptions] = useState([]);
 const [searchTerm, setSearchTerm] = useState('');
@@ -31,35 +28,6 @@ const [lastUsedCaption, setLastUsedCaption] = useState('');
     }
     fetchMemes();
   },[])
-
-  //fetch username on user change
-  useEffect(() => {   
-    const fetchUsername = async () => {
-      if(user){
-        const useDocRef = doc(db, 'users', user.uid);
-        const userSnap = await getDoc(useDocRef);
-
-        if(userSnap.exists()) {
-          setUsername(userSnap.data().username);
-        }
-      }
-    }
-    fetchUsername();
-  },[user])
-
-  const handleLogin = () => {
-    navigate('/login');
-  }
-
-  const handleLogout = async () => {
-    try{
-      await signOut(auth);
-      toast.success("User Logged out successfully!");
-      navigate('/login');
-    }catch(err){
-      console.log(err);
-    }
-  }
 
   // Function to regenerate captions (reuse CaptionGenerator's logic)
   const regenerateCaptions = async () => {
@@ -147,21 +115,10 @@ const [lastUsedCaption, setLastUsedCaption] = useState('');
       )}
       {/* Blur main content when modal is open */}
       <div className={`${isCaptionModalOpen ? 'filter blur-sm pointer-events-none select-none' : ''}`}>
+        
         {/* Navbar */}
-        <nav className="w-full flex items-center justify-between px-8 py-4 bg-white/80 shadow-md border-b-4 border-yellow-400 sticky top-0 z-10">
-          <div className="flex items-center gap-2">
-            <img src="https://i.imgflip.com/30b1gx.jpg" alt="logo" className="w-10 h-10 rounded-full border-2 border-pink-400 shadow" />
-            <span className="text-xl font-extrabold text-purple-700 tracking-tight">Memeify.AI</span>
-          </div>
-          {user ? (
-            <div className="flex items-center gap-4">
-              <span className="text-lg font-semibold text-purple-700">Hello, {username}</span>
-              <button onClick={handleLogout} className="bg-gradient-to-r from-yellow-400 via-pink-400 to-purple-400 text-white px-4 py-2 rounded-lg shadow hover:scale-105 transition-transform font-semibold border-2 border-yellow-300">Logout</button>
-            </div>
-          ) : (
-            <button onClick={handleLogin} className="bg-gradient-to-r from-yellow-400 via-pink-400 to-purple-400 text-white px-4 py-2 rounded-lg shadow hover:scale-105 transition-transform font-semibold border-2 border-yellow-300">Login</button>
-          )}
-        </nav>
+        <Navbar user={user}/>
+        
         {/* Main Content */}
         <div className="flex-1 flex flex-col md:flex-row gap-8 px-4 md:px-16 py-8">
           {/* Caption Generator Section */}

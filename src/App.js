@@ -8,6 +8,7 @@ import { useEffect, useState } from 'react';
 import { onAuthStateChanged } from 'firebase/auth';
 import { auth } from './firebase';
 import Preview from './pages/Preview';
+import History from './pages/History'
 
 
 function App() {
@@ -29,7 +30,8 @@ function App() {
         <Route path="/" element={<Home user={user} selectedCaption={selectedCaption} setSelectedCaption={setSelectedCaption} selectedMeme={selectedMeme} setSelectedMeme={setSelectedMeme}/>} />
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
-        <Route path='/preview' element={<Preview selectedCaption={selectedCaption} selectedMeme={selectedMeme}/>} />
+        <Route path='/preview' element={<Preview selectedCaption={selectedCaption} selectedMeme={selectedMeme} user={user}/>} />
+        <Route path="/history" element={<History user={user} />} />
       </Routes>
       <ToastContainer />
     </BrowserRouter>
