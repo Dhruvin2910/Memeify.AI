@@ -13,6 +13,10 @@ const Preview = ({ selectedCaption, selectedMeme, user }) => {
   const [textPosition, settextPosition] = useState({ x: 250, y: 40 });
   const [isDragging, setIsDragging] = useState(false);
   const [dragOffset, setDragoffset] = useState({ x: 0, y: 0 });
+  const [width, setWidth] = useState(300);
+  const [fontFamily, setFontFamily] = useState('Impact');
+  const [fontColor, setFontColor] = useState('white');
+  const [strokeColor, setStrokeColor] = useState('Black');
 
   const canvasRef = useRef(null);
 
@@ -42,23 +46,24 @@ const Preview = ({ selectedCaption, selectedMeme, user }) => {
     const canvas = canvasRef.current;
     const ctx = canvas.getContext("2d");
 
-    const fixedWidth = 500;
-    const fixedHeight = 500;
+    const container = canvas.parentElement;
+    const fixedHeight = container.offsetHeight;
+    const fixedWidth = container.offsetWidth;
 
-    canvas.width = fixedWidth;
     canvas.height = fixedHeight;
+    canvas.width = fixedWidth;
 
     ctx.clearRect(0, 0, fixedWidth, fixedHeight);
     ctx.drawImage(image, 0, 0, fixedWidth, fixedHeight);
 
-    ctx.font = `${fontSize}px Impact`;
-    ctx.fillStyle = "white";
-    ctx.strokeStyle = "black";
+    ctx.font = `${fontSize}px ${fontFamily}`;
+    ctx.fillStyle = fontColor;
+    ctx.strokeStyle = strokeColor;
     ctx.lineWidth = 1;
     ctx.textAlign = "center";
 
-    wrapText(ctx, caption, textPosition.x, textPosition.y, 400, fontSize + 6);
-  }, [caption, fontSize, textPosition, wrapText]);
+    wrapText(ctx, caption, textPosition.x, textPosition.y, width, fontSize + 6);
+  }, [caption, fontSize, textPosition, wrapText, width, fontColor, strokeColor, fontFamily]);
 
   useEffect(() => {
     const image = new Image();
@@ -153,7 +158,7 @@ const Preview = ({ selectedCaption, selectedMeme, user }) => {
         return;
       }
 
-      try{
+      try {
         const link = document.createElement('a');
         link.download = 'meme.png';
         link.href = URL.createObjectURL(blob);
@@ -164,7 +169,6 @@ const Preview = ({ selectedCaption, selectedMeme, user }) => {
         console.log("Download Error: ", err);
         toast.error("Downloading error!");
       }
-    
     }, 'image/png');
   };
 
@@ -178,60 +182,123 @@ const Preview = ({ selectedCaption, selectedMeme, user }) => {
       }
       uploadMeme(blob);
     }, 'image/png'); 
-  }
+  };
 
   return (
     <div>
-        <Navbar user={user}/>
-        <div className="flex flex-col items-center justify-center min-h-screen bg-gray-50 p-4">
-        <div className="shadow-lg rounded-lg bg-white p-4 flex flex-col items-center">
-          <canvas
+      <Navbar user={user} />
+      <div>
+        <div className='flex mt-8 ml-5'>
+          <div>
+          <h2 className='w-full bg-blue-500 border-gray-300 mb-3 flex items-center justify-center text-2xl font-bold tracking-wider text-white rounded-md py-2 shadow-md'>PREVIEW 👇</h2>
+            <canvas
+            className='h-96 w-96 border-red-400 border-2 shadow-md rounded-lg bg-amber-200-500 '
             ref={canvasRef}
             onMouseDown={handleMouseDown}
             onMouseMove={handleMouseMove}
             onMouseUp={handleMouseUp}
-            className="border border-gray-300 rounded-lg mb-4 cursor-grab active:cursor-grabbing"
-            style={{ background: '#f9fafb' }}
-          ></canvas>
-
-          <input
-            type="text"
-            value={caption}
-            onChange={(e) => setCaption(e.target.value)}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400 mt-2 mb-4 text-center text-lg"
-            placeholder="Enter your caption..."
-          />
-
-          <label className="flex flex-col items-center w-full mb-4">
-            <span className="mb-1 text-gray-700 font-medium">
-              Font Size: <span className="font-bold">{fontSize}</span>
-            </span>
-            <input
-              type="range"
-              min={10}
-              max={60}
-              value={fontSize}
-              onChange={(e) => setFontSize(Number(e.target.value))}
-              className="w-full accent-blue-500"
+          ></canvas> 
+          </div>
+          <div className='flex flex-col rounded-md w-1/2 ml-10 bg-lime-100 p-5 shadow-md'>
+            <h2 className="text-2xl font-bold mb-4 text-red-600 shadow-lg bg-lime-200 px-2 py-2 flex justify-center rounded-lg">Customize Your Meme 🖼️</h2>
+            <textarea
+              type="text"
+              value={caption}
+              onChange={(e) => setCaption(e.target.value)}
+              placeholder="Enter your caption..."
+              rows={2}
+              className='rounded-md px-3 py-2 bg-lime-50 shadow-md'
             />
-          </label>
 
-          <button
-            onClick={handleDownload}
-            className="w-full bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded-md transition-colors duration-200 shadow-md mt-2"
-          >
-            Download Meme
-          </button>
-          <button
-            onClick={handleSave}
-            className="w-full bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded-md transition-colors duration-200 shadow-md mt-2"
-          >
-            Save Meme
-          </button>
+            <label className='m-3 flex flex-col'>
+              <span className='bg-lime-200 round shadow-lg px-2 py-2 text-md font-semibold text-blue-900'>
+                Font Size: <span className='text-black font-serif'>{fontSize}</span>
+              </span>
+              <input
+                className='my-3'
+                type="range"
+                min={10}
+                max={60}
+                value={fontSize}
+                onChange={(e) => setFontSize(Number(e.target.value))}
+              />
+            </label>
+            <label className='ml-3 mb-3 flex flex-col'>
+              <span className='bg-lime-200 round shadow-lg px-2 py-2 text-md font-semibold text-blue-900'>
+                Wrap Text: <span className='text-black font-serif'>{width}</span>
+              </span>
+              <input
+                className='my-3'
+                type="range"
+                min={200}
+                max={400}
+                step={20}
+                value={width}
+                onChange={(e) => setWidth(Number(e.target.value))}
+              />
+            </label>
+            <div className='flex ml-3'>
+              <span className='bg-lime-200 shadow-md px-2 py-2 text-md font-semibold text-blue-900 rounded-md'>
+                Font Style:
+              </span>
+              <select
+                className='mx-2 px-2 py-1 rounded-md shadow-md bg-lime-200'
+                value={fontFamily}
+                onChange={(e) => setFontFamily(e.target.value)}
+              >
+                <option value="Impact">Impact</option>
+                <option value="Arial">Arial</option>
+                <option value="Comic Sans MS">Comic Sans MS</option>
+                <option value="Times New Roman">Times New Roman</option>
+                <option value="Georgia">Georgia</option>
+                <option value="Courier New">Courier New</option>
+              </select>
+            </div>
+            
+            <div className='flex ml-3 mt-2 item-center'>
+              <span className='bg-lime-100 shadow-md px-2 py-2 text-md font-semibold text-blue-900 rounded-md mr-2'>
+                Font Color:
+              </span>
+              <input
+                type="color"
+                value={fontColor}
+                onChange={(e) => setFontColor(e.target.value)}
+                className='mt-2 mr-5 h-8 w-24 rounded-md bg-lime-100 shadow-md px-3'
+              />
+              <span className='bg-lime-100 shadow-md px-2 py-2 text-md font-semibold text-blue-900 rounded-md mr-2'>
+                Border Color:
+              </span>
+              <input
+                type="color"
+                value={strokeColor}
+                onChange={(e) => setStrokeColor(e.target.value)}
+                className='mt-2 mr-5 h-8 w-24 rounded-md bg-lime-100 shadow-md px-3'
+              />
+            </div>
+            
+            <p className="text-sm text-gray-700 mt-2 italic">
+              Tip: Drag the caption on the meme preview to reposition it.
+            </p>
+          </div>
+          <div className='w-1/4 mx-3'>
+            <button
+              className='bg-orange-400 font-semibold rounded-md shadow-md my-2 py-3 text-md px-2 hover:bg-white hover:border-2 hover:border-orange-400 border-solid w-full'
+              onClick={handleDownload}
+            >
+              📥 Download Meme as Image
+            </button>
+
+            <button
+              className='bg-orange-400 font-semibold rounded-md shadow-md my-2 py-3 text-md px-2 hover:bg-white hover:border-2 hover:border-orange-400 border-solid w-full'
+              onClick={handleSave}
+            >
+              💾 Save Meme to Account
+            </button>
+            
+          </div>
         </div>
       </div>
     </div>
-    
   );
 };
 

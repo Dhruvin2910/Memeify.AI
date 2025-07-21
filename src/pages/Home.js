@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from 'react'
-import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import CaptionGenerator from '../components/CaptionGenerator';
 import CaptionSelector from '../components/CaptionSelector';
@@ -10,7 +9,6 @@ const Home = ({ user, selectedMeme, setSelectedMeme, selectedCaption, setSelecte
 const [memes, setMemes] = useState([]);
 const [captions, setCaptions] = useState([]);
 const [searchTerm, setSearchTerm] = useState('');
-const navigate = useNavigate();
 
 
 const [isCaptionModalOpen, setIsCaptionModalOpen] = useState(false);
@@ -173,7 +171,6 @@ const [lastUsedCaption, setLastUsedCaption] = useState('');
                 </div>
               ))}
             </div>
-            <button onClick={() => navigate('/preview')}>Preview</button>
           </div>
         </div>
       </div>

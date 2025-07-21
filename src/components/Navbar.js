@@ -53,25 +53,29 @@ const Navbar = ({ user }) => {
   }
 
   return (
-    <nav className="w-full flex items-center justify-between px-8 py-4 bg-white/80 shadow-md border-b-4 border-yellow-400 sticky top-0 z-10">
-      <div className="flex items-center gap-2">
+    <nav className="w-full flex items-center justify-between px-8 py-2 bg-white/80 shadow-md border-b-4 border-yellow-400 sticky top-0 z-10"> {/* Decreased py-4 to py-2 */}
+      <div className="flex items-center gap-4"> {/* Increased gap for space between logo and buttons */}
         <img
           src={logo}
           alt="logo"
-          className="w-10 h-10 rounded-full border-2 border-pink-400 shadow" // Increased size from w-10 h-10 to w-14 h-14
+          className="w-10 h-10 rounded-full border-2 border-pink-400 shadow"
         />
         <span className="text-xl font-extrabold text-purple-700 tracking-tight">Memeify</span>
-      </div>
-      <div>
+        <button 
+          onClick={()=>navigate('/')}
+          className="px-4 py-2 mx-1 rounded-lg text-purple-700 bg-purple-300 font-semibold shadow transition-colors hover:border-2 hover:border-purple-500 hover:bg-white"
+        >
+          Home
+        </button>
         <button 
           onClick={handleHistory}
-          className="px-4 py-2 mx-2 rounded-lg text-purple-700 bg-purple-300 font-semibold shadow transition-colors hover:border-2 hover:border-purple-500 hover:bg-white"
+          className="px-4 py-2 mx-1 rounded-lg text-purple-700 bg-purple-300 font-semibold shadow transition-colors hover:border-2 hover:border-purple-500 hover:bg-white"
         >
           History
         </button>
         <button 
           onClick={handlePreview}
-          className="px-4 py-2 mx-2 rounded-lg text-purple-700 bg-purple-300 font-semibold shadow transition-colors hover:border-2 hover:border-purple-500 hover:bg-white"
+          className="px-4 py-2 mx-1 rounded-lg text-purple-700 bg-purple-300 font-semibold shadow transition-colors hover:border-2 hover:border-purple-500 hover:bg-white"
         >
           Preview
         </button>
