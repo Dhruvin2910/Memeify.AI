@@ -1,9 +1,10 @@
 import React, { useState } from 'react'
 import { useNavigate } from 'react-router-dom';
 import { signInWithEmailAndPassword, signOut } from 'firebase/auth';
-import { auth } from '../firebase';
+import { auth, provider } from '../firebase';
 import { toast } from 'react-toastify';
 import Navbar from '../components/Navbar';
+import { signInWithPopup } from 'firebase/auth';
 
 const Login = () => {
     const [email, setEmail] = useState('');
@@ -33,6 +34,19 @@ const Login = () => {
             console.log(err);
             toast.error("Invalid Credentials")
         }
+    }
+
+    const handleGoogleSignIn = async () => {
+      try {
+        const result = await signInWithPopup(auth, provider);
+        const user = result.user;
+        Navigate('/home');
+        toast.success(`Welcome ${user.displayName}`);
+        console.log("User Info:", user);
+      } catch(err) {
+        console.error("Google Sign-in Error:", err);
+        toast.error("Google Sign-in failed!");
+      }
     }
 
   return (
@@ -74,6 +88,8 @@ const Login = () => {
               Sign up now
             </button>
           </div>
+          <button onClick={handleGoogleSignIn}>Signup With Google</button>
+          <button>Forgot Password?</button>
           <div className="absolute -bottom-8 left-1/2 transform -translate-x-1/2 bg-white px-3 py-1 rounded-full shadow-lg border-2 border-pink-300 text-pink-600 font-bold text-xs flex items-center gap-2">
             <span role="img" aria-label="meme">🧠</span> Memes make everything better!
           </div>

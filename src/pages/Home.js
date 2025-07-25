@@ -9,6 +9,8 @@ const Home = ({ user, selectedMeme, setSelectedMeme, selectedCaption, setSelecte
 const [memes, setMemes] = useState([]);
 const [captions, setCaptions] = useState([]);
 const [searchTerm, setSearchTerm] = useState('');
+const [topic, setTopic] = useState('');
+const [generatedMeme, setGeneratedMeme] = useState('');
 
 
 const [isCaptionModalOpen, setIsCaptionModalOpen] = useState(false);
@@ -80,6 +82,51 @@ const [lastUsedCaption, setLastUsedCaption] = useState('');
     meme.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
   
+  const generateMeme = async () => {
+    if(!topic.trim()) {
+      toast.error("Please enter a topic first");
+      return;
+    }
+
+    try {
+      const OPENAI_KEY = process.env.REACT_APP_OPENAI_KEY;
+      const response = await fetch("https://api.openai.com/v1/images/generations", {
+        method:"POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${OPENAI_KEY}`
+        },
+        body: JSON.stringify({
+          model: "dall-e-3",
+          prompt: `Generate a funny meme image about "${topic}". Use a cartoon or exaggerated art style. Make it humorous, expressive, and visually engaging. Add a clever or ironic twist to make people laugh. No text needed in the image.`,
+          n: 1,
+          size: "1024x1024"
+        }),
+      });
+
+      const data = await response.json();
+      const memeUrl = data.data[0]?.url;
+      if(memeUrl){
+        setGeneratedMeme(memeUrl);
+      } else {
+        toast.error("Failed to generate meme!");
+      }
+    } catch(err) {
+      console.log("Meme Generation Error: ", err);
+      toast.error("Error in Meme Generation");
+    }  
+  }
+
+  const handleFileChange = (e) => {
+    try{
+      const file = e.target.files[0];
+      setSelectedMeme(file);
+      toast.success("Image upload successfully...");
+    }catch(err){
+      toast.error("Error in Image upload!")
+      console.log("Upload Err: ", err);
+    }
+  }
 
   return (
     <div className={`min-h-screen bg-gradient-to-br from-yellow-200 via-pink-200 to-purple-200 flex flex-col ${isCaptionModalOpen ? 'overflow-hidden' : ''}`}>
@@ -172,6 +219,35 @@ const [lastUsedCaption, setLastUsedCaption] = useState('');
               ))}
             </div>
           </div>
+        </div>
+        <div>
+          <p>Upload Template</p>
+            <input type="file" onChange={(e) => handleFileChange(e)} />
+            <img 
+              src={
+                selectedMeme 
+                ? selectedMeme.url || URL.createObjectURL(selectedMeme) 
+                : ""
+              }  
+              alt="Selected Meme" 
+            />
+        </div>
+        <div>
+          <p>Generate MEME using AI</p>
+          <input 
+            className='w-full text-lg'
+            type="text"
+            placeholder="Enter meme topic..."
+            value={topic}
+            onChange={(e) => setTopic(e.target.value)}
+          />
+          <button onClick={generateMeme}>Generate Meme</button>
+          {generatedMeme && (
+            <div className="mt-4 flex flex-col items-center">
+              <p className="font-semibold text-purple-700">Generated Meme:</p>
+              <img src={generatedMeme} alt="AI Meme" className="w-full max-w-md rounded-xl shadow-lg mt-2" />
+            </div>
+          )}
         </div>
       </div>
     </div>

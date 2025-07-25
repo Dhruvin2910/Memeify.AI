@@ -9,6 +9,8 @@ import { onAuthStateChanged } from 'firebase/auth';
 import { auth } from './firebase';
 import Preview from './pages/Preview';
 import History from './pages/History'
+import ForgotPassword from './components/ForgotPassword';
+import MemeMaker from './pages/MemeMaker';
 
 
 function App() {
@@ -32,6 +34,8 @@ function App() {
         <Route path="/signup" element={<Signup />} />
         <Route path='/preview' element={<Preview selectedCaption={selectedCaption} selectedMeme={selectedMeme} user={user}/>} />
         <Route path="/history" element={<History user={user} />} />
+        <Route path="/forgotpassword" element={<ForgotPassword />} />
+        <Route path="/mememaker" element={<MemeMaker />} />
       </Routes>
       <ToastContainer />
     </BrowserRouter>

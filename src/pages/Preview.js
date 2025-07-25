@@ -68,7 +68,9 @@ const Preview = ({ selectedCaption, selectedMeme, user }) => {
   useEffect(() => {
     const image = new Image();
     image.crossOrigin = "anonymous";
-    image.src = selectedMeme.url;
+    
+    const imageUrl = selectedMeme instanceof File ? URL.createObjectURL(selectedMeme) : selectedMeme.url;
+    image.src = imageUrl;
 
     image.onload = () => {
       drawMeme(image);
@@ -184,6 +186,36 @@ const Preview = ({ selectedCaption, selectedMeme, user }) => {
     }, 'image/png'); 
   };
 
+  const handleShare = () => {
+    const canvas = canvasRef.current;
+  
+    canvas.toBlob(async (blob) => {
+      if (!blob) {
+        toast.error("Sharing failed: image generation failed.");
+        return;
+      }
+  
+      const file = new File([blob], 'meme.png', { type: 'image/png' });
+  
+      if (navigator.canShare && navigator.canShare({ files: [file] })) {
+        try {
+          await navigator.share({
+            title: 'Memeify - My Meme',
+            text: 'Look at this meme I just made!',
+            files: [file],
+          });
+          toast.success("Meme shared successfully!");
+        } catch (err) {
+          console.error("Sharing failed:", err);
+          toast.error("Sharing failed.");
+        }
+      } else {
+        toast.warn("Direct file sharing is not supported on your browser.");
+        // Optional fallback: copy to clipboard or upload + share link
+      }
+    }, 'image/png');
+  };
+  
   return (
     <div>
       <Navbar user={user} />
@@ -294,7 +326,12 @@ const Preview = ({ selectedCaption, selectedMeme, user }) => {
             >
               💾 Save Meme to Account
             </button>
-            
+            <button
+              className='bg-orange-400 font-semibold rounded-md shadow-md my-2 py-3 text-md px-2 hover:bg-white hover:border-2 hover:border-orange-400 border-solid w-full'
+              onClick={handleShare}
+            >
+              💾 Share
+            </button>
           </div>
         </div>
       </div>

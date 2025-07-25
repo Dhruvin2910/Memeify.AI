@@ -30,14 +30,22 @@ const History = ({ user }) => {
     }, [user])
 
   return (
-    <div>
+    <div className="min-h-screen bg-gradient-to-br from-yellow-100 via-pink-100 to-purple-100">
         <Navbar user={user} />
-        {memes.map((meme, index) => (
-            <div key={index} className='h-48 w-auto'>
-                <img src={meme.url} alt="Meme..." className='h-48 w-auto' />
-            </div>
+
+        <div className="max-w-5xl mx-auto text-center my-6 w-full shadow-md bg-black bg-opacity-50 py-1 rounded-md">
+            <h1 className="text-3xl font-bold text-orange-400 mb-2">Your Meme Gallery</h1>
+        </div>
+
+        <div className="flex flex-wrap justify-center gap-4">
+            {memes.map((meme, index) => (
+            <div key={index} className="">
+                <img src={meme.url} alt="Meme..." className="h-72 w-auto rounded-lg shadow-md border-white border-solid border-2" />
+        </div>
         ))}
     </div>
+</div>
+
   )
 }
 
