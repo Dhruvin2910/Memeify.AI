@@ -1,20 +1,20 @@
 import React, { useEffect, useState } from 'react'
 import { toast } from 'react-toastify';
-import CaptionGenerator from '../components/CaptionGenerator';
 import CaptionSelector from '../components/CaptionSelector';
 import Navbar from '../components/Navbar';
+import Spinner from '../components/Spinner';
+import { useNavigate } from 'react-router-dom';
 
 const Home = ({ user, selectedMeme, setSelectedMeme, selectedCaption, setSelectedCaption }) => {
-
+  const navigate = useNavigate();
   const [memes, setMemes] = useState([]);
   const [captions, setCaptions] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [topic, setTopic] = useState('');
-  const [generatedMeme, setGeneratedMeme] = useState('');
+  const [memeText, setMemeText] =useState('');
 
   const [isCaptionModalOpen, setIsCaptionModalOpen] = useState(false);
   const [isRegenerating, setIsRegenerating] = useState(false);
-  const [lastUsedCaption, setLastUsedCaption] = useState('');
   const [showTemplates, setShowTemplates] = useState(false);
 
   useEffect(() => {
@@ -96,7 +96,7 @@ const Home = ({ user, selectedMeme, setSelectedMeme, selectedCaption, setSelecte
         },
         body: JSON.stringify({
           model: "dall-e-3",
-          prompt: `Generate a funny meme image about "${topic}". Use a cartoon or exaggerated art style. Make it humorous, expressive, and visually engaging. Add a clever or ironic twist to make people laugh. No text needed in the image.`,
+          prompt: `Generate a funny meme image about "${memeText}". Use a cartoon or exaggerated art style. Make it humorous, expressive, and visually engaging. Add a clever or ironic twist to make people laugh. No text needed in the image.`,
           n: 1,
           size: "1024x1024"
         }),
@@ -105,7 +105,7 @@ const Home = ({ user, selectedMeme, setSelectedMeme, selectedCaption, setSelecte
       const data = await response.json();
       const memeUrl = data.data[0]?.url;
       if (memeUrl) {
-        setGeneratedMeme(memeUrl);
+        selectedMeme(memeUrl);
       } else {
         toast.error("Failed to generate meme!");
       }
@@ -126,6 +126,49 @@ const Home = ({ user, selectedMeme, setSelectedMeme, selectedCaption, setSelecte
     }
   }
 
+  const generateCaption = async () => {
+    setIsRegenerating(true);
+    try {
+      const input = topic || 'funny meme';
+      const OPENAI_KEY = process.env.REACT_APP_OPENAI_KEY;
+      const response = await fetch("https://api.openai.com/v1/chat/completions", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${OPENAI_KEY}`
+        },
+        body: JSON.stringify({
+          model: "gpt-3.5-turbo",
+          messages: [
+            {
+              role: "user",
+              content: `Give me 5 funny meme captions about: ${input}`,
+            },
+          ],
+          temperature: 0.7,
+          max_tokens: 150,
+        })
+      });
+      const data = await response.json();
+      const text = data.choices[0].message.content;
+      const captionList = text
+        .split("\n")
+        .filter(line => line.trim() !== "")
+        .map(line =>
+          line
+            .replace(/^\d+\.?\s*/, "")
+            .replace(/^"|"$/g, "")
+            .replace(/\.$/, "")
+            .trim()
+        );
+      setCaptions(captionList);
+      setIsCaptionModalOpen(true);
+    } catch (err) {
+      toast.error("Failed to generate captions");
+    }
+    setIsRegenerating(false);
+  }
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-900 via-blue-900 to-indigo-900">
       <Navbar user={user} />
@@ -139,6 +182,18 @@ const Home = ({ user, selectedMeme, setSelectedMeme, selectedCaption, setSelecte
           <h3 className="text-xl text-gray-300 font-light max-w-2xl mx-auto">
             Create Memes Instantly Using AI-Generated Captions & Templates
           </h3>
+        </div>
+        <div className="text-center my-3 w-full flex justify-end">
+          <button
+            onClick={() => navigate('/preview')}
+            disabled={!(selectedCaption && selectedMeme)}
+            className={`py-3 px-6 rounded-lg font-bold shadow-lg transition-all duration-200 transform 
+              ${selectedCaption && selectedMeme
+                ? 'bg-gradient-to-r from-yellow-400 to-red-500 hover:scale-105 text-white'
+                : 'bg-gray-500 cursor-not-allowed text-gray-300'}`}
+          >
+            Next →
+          </button>
         </div>
 
         {/* Main Content Grid */}
@@ -162,65 +217,29 @@ const Home = ({ user, selectedMeme, setSelectedMeme, selectedCaption, setSelecte
                   {topic.length}/300
                 </div>
               </div>
+              {isRegenerating ? (
+                <div className='w-full flex justify-center rounded-lg'><Spinner/></div>
+              ) : (
+              <div className='flex flex-col justify-center'>
+                <button
+                  onClick={generateCaption}
+                  disabled={isRegenerating}
+                  className="w-full bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 text-white font-semibold py-3 px-6 rounded-lg transition-all duration-200 transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+                >
+                  Generate AI Captions
+                </button>
+                <button 
+                  onClick={() => setTopic('When you realize it\'s Monday again')}
+                  className="w-1/2 mt-3 bg-white/20 hover:bg-white/30 text-white font-medium py-2 px-6 rounded-full transition-all duration-200 border border-white/30 hover:border-white/50 mb-2"
+                >
+                  Try Sample Text
+                </button>
+              </div>
+              )}
               
-              <button
-                onClick={async () => {
-                  setIsRegenerating(true);
-                  try {
-                    const input = topic || 'funny meme';
-                    const OPENAI_KEY = process.env.REACT_APP_OPENAI_KEY;
-                    const response = await fetch("https://api.openai.com/v1/chat/completions", {
-                      method: "POST",
-                      headers: {
-                        "Content-Type": "application/json",
-                        "Authorization": `Bearer ${OPENAI_KEY}`
-                      },
-                      body: JSON.stringify({
-                        model: "gpt-3.5-turbo",
-                        messages: [
-                          {
-                            role: "user",
-                            content: `Give me 5 funny meme captions about: ${input}`,
-                          },
-                        ],
-                        temperature: 0.7,
-                        max_tokens: 150,
-                      })
-                    });
-                    const data = await response.json();
-                    const text = data.choices[0].message.content;
-                    const captionList = text
-                      .split("\n")
-                      .filter(line => line.trim() !== "")
-                      .map(line =>
-                        line
-                          .replace(/^\d+\.?\s*/, "")
-                          .replace(/^"|"$/g, "")
-                          .replace(/\.$/, "")
-                          .trim()
-                      );
-                    setCaptions(captionList);
-                    setIsCaptionModalOpen(true);
-                  } catch (err) {
-                    toast.error("Failed to generate captions");
-                  }
-                  setIsRegenerating(false);
-                }}
-                disabled={isRegenerating}
-                className="w-full bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 text-white font-semibold py-3 px-6 rounded-lg transition-all duration-200 transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
-              >
-                {isRegenerating ? (
-                  <div className="flex items-center justify-center">
-                    <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></div>
-                    Generating...
-                  </div>
-                ) : (
-                  'Generate AI Captions'
-                )}
-              </button>
+              
             </div>
 
-            {/* Divider */}
             <div className="flex items-center my-8">
               <div className="flex-1 border-t border-white/20"></div>
               <span className="px-4 text-white/60 font-medium">OR</span>
@@ -229,7 +248,7 @@ const Home = ({ user, selectedMeme, setSelectedMeme, selectedCaption, setSelecte
 
             {/* Manual Caption Input */}
             <div className="space-y-4">
-              <label className="block text-white font-semibold text-lg">Enter Caption Manually</label>
+              <label className="block text-white font-semibold text-lg">{selectedCaption? "Edit Caption" : "Enter Caption Manually"}</label>
               <textarea 
                 onChange={(e) => setSelectedCaption(e.target.value)}
                 value={selectedCaption}
@@ -237,6 +256,13 @@ const Home = ({ user, selectedMeme, setSelectedMeme, selectedCaption, setSelecte
                 placeholder='Write your caption here...'
                 className="w-full px-4 py-3 bg-white/20 border border-white/30 rounded-lg text-white placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-pink-400 focus:border-transparent transition-all duration-200 resize-none"
               />
+              <button
+                className="w-full bg-gradient-to-r from-blue-100 to-blue-200 text-blue-800 font-semibold py-2 px-4 rounded-lg shadow hover:scale-105 transition-all duration-200 border border-blue-100 disabled:opacity-50 disabled:cursor-not-allowed"
+                onClick={() => captions.length > 0 && setIsCaptionModalOpen(true)}
+                disabled={captions.length === 0}
+              >
+                Show Captions
+              </button>
             </div>
           </div>
 
@@ -246,6 +272,16 @@ const Home = ({ user, selectedMeme, setSelectedMeme, selectedCaption, setSelecte
             
             {/* AI Meme Generation */}
             <div className="space-y-6 mb-8">
+              <div className="mb-4">
+                <label className="block text-white font-semibold text-lg mb-2">Describe your meme idea</label>
+                <textarea
+                  value={memeText}
+                  onChange={e => setMemeText(e.target.value)}
+                  rows={3}
+                  placeholder="Describe what you want to see in your meme (e.g. 'A cat working on a laptop')"
+                  className="w-full px-4 py-3 bg-white/20 border border-white/30 rounded-lg text-white placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent transition-all duration-200 resize-none"
+                />
+              </div>
               <div className="text-center">
                 <h3 className="text-xl font-semibold text-white mb-4">Generate AI Memes</h3>
                 <p className="text-gray-300 mb-4">Create unique memes using AI image generation</p>
@@ -300,17 +336,7 @@ const Home = ({ user, selectedMeme, setSelectedMeme, selectedCaption, setSelecte
           </div>
         </div>
 
-        {/* Sample Text Button */}
-        <div className="text-center mb-8">
-          <button 
-            onClick={() => setTopic('When you realize it\'s Monday again')}
-            className="bg-white/20 hover:bg-white/30 text-white font-medium py-2 px-6 rounded-full transition-all duration-200 border border-white/30 hover:border-white/50"
-          >
-            Try Sample Text
-          </button>
-        </div>
-
-        {/* Selected Meme Preview */}
+        {/* Selected Meme Preview
         {(selectedMeme || generatedMeme) && (
           <div className="bg-white/10 backdrop-blur-lg rounded-2xl p-8 border border-white/20 mb-8">
             <h3 className="text-2xl font-bold text-white mb-6 text-center">Preview</h3>
@@ -320,7 +346,7 @@ const Home = ({ user, selectedMeme, setSelectedMeme, selectedCaption, setSelecte
                   <img 
                     src={URL.createObjectURL(selectedMeme)} 
                     alt="Selected Meme" 
-                    className="w-full max-w-md mx-auto rounded-lg shadow-2xl"
+                    className="w-auto h-96 max-w-[400px] mx-auto rounded-lg shadow-2xl"
                   />
                 )}
                 {selectedMeme && selectedMeme.url && (
@@ -346,7 +372,7 @@ const Home = ({ user, selectedMeme, setSelectedMeme, selectedCaption, setSelecte
               )}
             </div>
           </div>
-        )}
+        )} */}
 
         {/* About Section */}
         <div className="bg-white/10 backdrop-blur-lg rounded-2xl p-8 border border-white/20">
@@ -421,7 +447,6 @@ const Home = ({ user, selectedMeme, setSelectedMeme, selectedCaption, setSelecte
               setSelectedCaption={setSelectedCaption}
               onUseCaption={(caption) => {
                 setSelectedCaption(caption);
-                setLastUsedCaption(caption);
                 setIsCaptionModalOpen(false);
               }}
             />

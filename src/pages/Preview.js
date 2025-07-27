@@ -239,7 +239,7 @@ const Preview = ({ selectedCaption, selectedMeme, user }) => {
               onChange={(e) => setCaption(e.target.value)}
               placeholder="Enter your caption..."
               rows={2}
-              className='rounded-md px-3 py-2 bg-lime-50 shadow-md'
+              className='rounded-md text-black px-3 py-2 bg-lime-50 shadow-md'
             />
 
             <label className='m-3 flex flex-col'>
@@ -314,20 +314,20 @@ const Preview = ({ selectedCaption, selectedMeme, user }) => {
           </div>
           <div className='w-1/4 mx-3'>
             <button
-              className='bg-orange-400 font-semibold rounded-md shadow-md my-2 py-3 text-md px-2 hover:bg-white hover:border-2 hover:border-orange-400 border-solid w-full'
+              className='bg-orange-400 font-semibold rounded-md shadow-md my-2 py-3 text-md px-2 hover:bg-white hover:border-2 hover:border-orange-400 border-solid w-full hover:text-orange-400'
               onClick={handleDownload}
             >
               📥 Download Meme as Image
             </button>
 
             <button
-              className='bg-orange-400 font-semibold rounded-md shadow-md my-2 py-3 text-md px-2 hover:bg-white hover:border-2 hover:border-orange-400 border-solid w-full'
+              className='bg-orange-400 font-semibold rounded-md shadow-md my-2 py-3 text-md px-2 hover:bg-white hover:border-2 hover:border-orange-400 border-solid w-full hover:text-orange-400'
               onClick={handleSave}
             >
               💾 Save Meme to Account
             </button>
             <button
-              className='bg-orange-400 font-semibold rounded-md shadow-md my-2 py-3 text-md px-2 hover:bg-white hover:border-2 hover:border-orange-400 border-solid w-full'
+              className='bg-orange-400 font-semibold rounded-md shadow-md my-2 py-3 text-md px-2 hover:bg-white hover:border-2 hover:border-orange-400 border-solid w-full hover:text-orange-400'
               onClick={handleShare}
             >
               💾 Share
