@@ -192,7 +192,7 @@ const Home = ({ user, selectedMeme, setSelectedMeme, selectedCaption, setSelecte
                 ? 'bg-gradient-to-r from-yellow-400 to-red-500 hover:scale-105 text-white'
                 : 'bg-gray-500 cursor-not-allowed text-gray-300'}`}
           >
-            Next →
+            Preview →
           </button>
         </div>
 

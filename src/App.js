@@ -11,6 +11,8 @@ import Preview from './pages/Preview';
 import History from './pages/History'
 import ForgotPassword from './components/ForgotPassword';
 import MemeMaker from './pages/MemeMaker';
+import '@fortawesome/fontawesome-free/css/all.min.css';
+
 
 
 function App() {
