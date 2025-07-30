@@ -3,6 +3,7 @@ import { db } from '../firebase';
 import { collection, query, where, getDocs } from 'firebase/firestore';
 import { toast } from 'react-toastify';
 import Navbar from '../components/Navbar';
+import { getStorage, ref, getBlob } from "firebase/storage";
 
 const History = ({ user }) => {
     const [memes, setMemes] = useState([]);
@@ -42,26 +43,31 @@ const History = ({ user }) => {
 
     const handleShare = async (index) => {
         const imageUrl = memes[index].url;
-
-        if (navigator.share) {
-            try {
+    
+        try {
+            const storage = getStorage(); // Already initialized
+            const fileRef = ref(storage, decodeURIComponent(new URL(imageUrl).pathname.split('/o/')[1].split('?alt=media')[0]));
+    
+            const blob = await getBlob(fileRef);
+            const file = new File([blob], 'meme.png', { type: blob.type });
+    
+            if (navigator.canShare && navigator.canShare({ files: [file] })) {
                 await navigator.share({
                     title: 'Check out this meme!',
                     text: 'Found this funny meme, take a look!',
-                    url: imageUrl,
+                    files: [file],
                 });
-            } catch (err) {
-                toast.error('Sharing canceled or failed.');
-            }
-        } else {
-            try {
+            } else {
                 await navigator.clipboard.writeText(imageUrl);
-                toast.success('Link copied to clipboard!');
-            } catch (err) {
-                toast.error('Failed to copy link.');
+                toast.success('Link copied to clipboard (image sharing not supported on this device).');
             }
+        } catch (err) {
+            console.error(err);
+            toast.error('Sharing failed. CORS issue or unsupported device.');
         }
     };
+    
+    
 
     return (
         <div className="min-h-screen bg-gradient-to-br from-purple-900 via-blue-900 to-indigo-900">
@@ -83,7 +89,7 @@ const History = ({ user }) => {
                         <div className="absolute bottom-4 right-4 flex gap-2">
                             <button
                                 onClick={() => handleDownload(index)}
-                                className="bg-white/80 text-black p-2 rounded-md shadow-md hover:bg-white transition"
+                                className="bg-white/80 text-black p-2 rounded-md shadow-md hover:bg-white transition opacity-0 hover:opacity-100"
                                 title="Download"
                             >
                                 <i className="fa-solid fa-download fa-lg"></i>
@@ -91,7 +97,7 @@ const History = ({ user }) => {
 
                             <button
                                 onClick={() => handleShare(index)}
-                                className="bg-white/80 text-black p-2 rounded-md shadow-md hover:bg-white transition"
+                                className="bg-white/80 text-black p-2 rounded-md shadow-md hover:bg-white transition opacity-0 hover:opacity-100"
                                 title="Share"
                             >
                                 <i className="fa-solid fa-share-nodes fa-lg"></i>
