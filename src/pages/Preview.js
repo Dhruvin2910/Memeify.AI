@@ -5,6 +5,7 @@ import { collection, addDoc } from 'firebase/firestore';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { toast } from 'react-toastify';
 import Navbar from '../components/Navbar';
+import Spinner2 from '../components/Spinner2'
 
 const Preview = ({ selectedCaption, selectedMeme, user }) => {
 
@@ -17,6 +18,7 @@ const Preview = ({ selectedCaption, selectedMeme, user }) => {
   const [fontFamily, setFontFamily] = useState('Impact');
   const [fontColor, setFontColor] = useState('white');
   const [strokeColor, setStrokeColor] = useState('Black');
+  const [isLoading, setIsLoading] = useState(false);
 
   const canvasRef = useRef(null);
 
@@ -141,8 +143,10 @@ const Preview = ({ selectedCaption, selectedMeme, user }) => {
         caption,
         fontSize,
         position: textPosition,
+        templateUrl: selectedMeme?.url || '',
         createdAt: new Date()
       });
+      
 
       toast.success("Meme saved successfully!");
     } catch (err) {
@@ -175,6 +179,7 @@ const Preview = ({ selectedCaption, selectedMeme, user }) => {
   };
 
   const handleSave = () => {
+    setIsLoading(true);
     const canvas = canvasRef.current;
 
     canvas.toBlob((blob) => {
@@ -183,6 +188,7 @@ const Preview = ({ selectedCaption, selectedMeme, user }) => {
         return;
       }
       uploadMeme(blob);
+      setIsLoading(false);
     }, 'image/png'); 
   };
 
@@ -217,7 +223,7 @@ const Preview = ({ selectedCaption, selectedMeme, user }) => {
   };
   
   return (
-    <div>
+    <div className='bg-gradient-to-br from-purple-900 via-blue-900 to-indigo-900'>
       <Navbar user={user} />
       <div>
         <div className='flex mt-8 ml-5'>
@@ -314,20 +320,20 @@ const Preview = ({ selectedCaption, selectedMeme, user }) => {
           </div>
           <div className='w-1/4 mx-3'>
             <button
-              className='bg-orange-400 font-semibold rounded-md shadow-md my-2 py-3 text-md px-2 hover:bg-white hover:border-2 hover:border-orange-400 border-solid w-full hover:text-orange-400'
+              className='bg-orange-400 font-semibold rounded-md shadow-md my-2 py-3 text-md px-2 hover:bg-white hover:border-2 hover:border-orange-400 border-solid w-full hover:text-orange-400 border-2 border-orange-400'
               onClick={handleDownload}
             >
               📥 Download Meme as Image
             </button>
 
             <button
-              className='bg-orange-400 font-semibold rounded-md shadow-md my-2 py-3 text-md px-2 hover:bg-white hover:border-2 hover:border-orange-400 border-solid w-full hover:text-orange-400'
+              className='bg-orange-400 flex justify-center font-semibold rounded-md shadow-md my-2 py-3 text-md px-2 hover:bg-white hover:border-2 hover:border-orange-400 border-solid w-full hover:text-orange-400 border-2 border-orange-400'
               onClick={handleSave}
             >
-              💾 Save Meme to Account
+              <p className='flex mx-3'>💾 Save Meme</p> {isLoading && <Spinner2 />}
             </button>
             <button
-              className='bg-orange-400 font-semibold rounded-md shadow-md my-2 py-3 text-md px-2 hover:bg-white hover:border-2 hover:border-orange-400 border-solid w-full hover:text-orange-400'
+              className='bg-orange-400 font-semibold rounded-md shadow-md my-2 flex justify-center py-3 text-md px-2 hover:bg-white hover:border-2 hover:border-orange-400 border-solid w-full hover:text-orange-400 border-2 border-orange-400'
               onClick={handleShare}
             >
               💾 Share

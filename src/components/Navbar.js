@@ -77,7 +77,7 @@ const Navbar = ({ user }) => {
           onClick={handleHistory}
           className="mx-3 text-purple-500 font-semibold font-serif text-xl hover:shadow-md px-2 py-2 rounded-lg active:shadow-lg active:scale-105 transition-transform"
         >
-          History
+          My Memes
         </button>
       </div>
       {user ? (
