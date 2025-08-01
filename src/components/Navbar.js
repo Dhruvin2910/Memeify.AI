@@ -63,21 +63,21 @@ const Navbar = ({ user }) => {
         <span className="text-xl font-extrabold text-purple-700 tracking-tight">Memeify</span>
         <button 
           onClick={()=>navigate('/')}
-          className="px-4 py-2 mx-1 rounded-lg text-purple-700 bg-purple-300 font-semibold shadow transition-colors hover:border-2 hover:border-purple-500 hover:bg-white"
+          className="ml-10 text-purple-500 font-semibold font-serif text-xl hover:shadow-md px-2 py-2 rounded-lg active:shadow-lg active:scale-105 transition-transform"
         >
           Home
         </button>
         <button 
-          onClick={handleHistory}
-          className="px-4 py-2 mx-1 rounded-lg text-purple-700 bg-purple-300 font-semibold shadow transition-colors hover:border-2 hover:border-purple-500 hover:bg-white"
-        >
-          History
-        </button>
-        <button 
           onClick={handlePreview}
-          className="px-4 py-2 mx-1 rounded-lg text-purple-700 bg-purple-300 font-semibold shadow transition-colors hover:border-2 hover:border-purple-500 hover:bg-white"
+          className="mx-3 text-purple-500 font-semibold font-serif text-xl hover:shadow-md px-2 py-2 rounded-lg active:shadow-lg active:scale-105 transition-transform"
         >
           Preview
+        </button>
+        <button 
+          onClick={handleHistory}
+          className="mx-3 text-purple-500 font-semibold font-serif text-xl hover:shadow-md px-2 py-2 rounded-lg active:shadow-lg active:scale-105 transition-transform"
+        >
+          History
         </button>
       </div>
       {user ? (
