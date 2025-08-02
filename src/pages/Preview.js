@@ -1,28 +1,37 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { db, storage } from '../firebase';
 import { getAuth } from 'firebase/auth';
-import { collection, addDoc } from 'firebase/firestore';
+import { collection, addDoc, deleteDoc, doc } from 'firebase/firestore';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { toast } from 'react-toastify';
 import Navbar from '../components/Navbar';
-import Spinner2 from '../components/Spinner2'
+import LoadingBar from "react-top-loading-bar";
 
-const Preview = ({ selectedCaption, selectedMeme, user }) => {
+const Preview = ({ selectedCaption, selectedMeme, user,
+    fontSize, setFontSize,
+    fontFamily, setFontFamily,
+    fontColor, setFontColor,
+    strokeColor,setStrokeColor,
+    caption,setCaption,
+    width, setWidth,
+    textPosition, settextPosition,
+    createdAt, memeId
+ }) => {
 
-  const [caption, setCaption] = useState(selectedCaption);
-  const [fontSize, setFontSize] = useState(30);
-  const [textPosition, settextPosition] = useState({ x: 250, y: 40 });
   const [isDragging, setIsDragging] = useState(false);
   const [dragOffset, setDragoffset] = useState({ x: 0, y: 0 });
-  const [width, setWidth] = useState(300);
-  const [fontFamily, setFontFamily] = useState('Impact');
-  const [fontColor, setFontColor] = useState('white');
-  const [strokeColor, setStrokeColor] = useState('Black');
-  const [isLoading, setIsLoading] = useState(false);
+  
+  const [progress, setProgress] = useState(0);
 
   const canvasRef = useRef(null);
 
   const wrapText = useCallback((ctx, text, x, y, maxWidth, lineHeights) => {
+    // Fix: Add safety checks for parameters
+    if (!ctx || !text || typeof x !== 'number' || typeof y !== 'number' || typeof maxWidth !== 'number' || typeof lineHeights !== 'number') {
+      console.warn("Invalid parameters passed to wrapText:", { ctx: !!ctx, text, x, y, maxWidth, lineHeights });
+      return;
+    }
+    
     const words = text.split(' ');
     let line = '';
 
@@ -46,9 +55,23 @@ const Preview = ({ selectedCaption, selectedMeme, user }) => {
 
   const drawMeme = useCallback((image) => {
     const canvas = canvasRef.current;
+    if (!canvas) {
+      console.warn("Canvas not available");
+      return;
+    }
+    
     const ctx = canvas.getContext("2d");
+    if (!ctx) {
+      console.warn("Canvas context not available");
+      return;
+    }
 
     const container = canvas.parentElement;
+    if (!container) {
+      console.warn("Canvas parent element not available");
+      return;
+    }
+    
     const fixedHeight = container.offsetHeight;
     const fixedWidth = container.offsetWidth;
 
@@ -64,14 +87,29 @@ const Preview = ({ selectedCaption, selectedMeme, user }) => {
     ctx.lineWidth = 1;
     ctx.textAlign = "center";
 
-    wrapText(ctx, caption, textPosition.x, textPosition.y, width, fontSize + 6);
-  }, [caption, fontSize, textPosition, wrapText, width, fontColor, strokeColor, fontFamily]);
+    // Fix: Add safety check for textPosition and caption
+    const safeTextPosition = textPosition || { x: 250, y: 40 };
+    const safeCaption = caption || selectedCaption || '';
+    wrapText(ctx, safeCaption, safeTextPosition.x, safeTextPosition.y, width, fontSize + 6);
+  }, [caption, selectedCaption, fontSize, textPosition, wrapText, width, fontColor, strokeColor, fontFamily]);
 
   useEffect(() => {
     const image = new Image();
     image.crossOrigin = "anonymous";
     
-    const imageUrl = selectedMeme instanceof File ? URL.createObjectURL(selectedMeme) : selectedMeme.url;
+    let imageUrl = '';
+
+    if (selectedMeme instanceof File) {
+      imageUrl = URL.createObjectURL(selectedMeme);
+    } else if (typeof selectedMeme === 'string') {
+      imageUrl = selectedMeme;
+    } else if (selectedMeme?.url) {
+      imageUrl = selectedMeme.url;
+    } else {
+      console.warn("selectedMeme is not a valid image source:", selectedMeme);
+      return;
+    }
+
     image.src = imageUrl;
 
     image.onload = () => {
@@ -79,8 +117,16 @@ const Preview = ({ selectedCaption, selectedMeme, user }) => {
     };
   }, [selectedMeme, drawMeme]);
 
+  // Sync caption with selectedCaption when it changes
   useEffect(() => {
-    if (!selectedMeme?.url) return;
+    if (selectedCaption && selectedCaption !== caption) {
+      setCaption(selectedCaption);
+    }
+  }, [selectedCaption, caption, setCaption]);
+
+  useEffect(() => {
+    // Fix: Add safety check for selectedMeme and its url property
+    if (!selectedMeme || !selectedMeme.url) return;
 
     const image = new Image();
     image.crossOrigin = "anonymous";
@@ -89,24 +135,30 @@ const Preview = ({ selectedCaption, selectedMeme, user }) => {
     image.onload = () => {
       drawMeme(image);
     };
-  }, [caption, fontSize, textPosition, selectedMeme.url, drawMeme]);
+  }, [caption, fontSize, textPosition, selectedMeme?.url, selectedMeme, drawMeme]);
 
   const handleMouseDown = (e) => {
     const canvas = canvasRef.current;
+    if (!canvas) return;
+    
     const rect = canvas.getBoundingClientRect();
     const clickX = e.clientX - rect.left;
     const clickY = e.clientY - rect.top;
 
-    const distance = Math.hypot(clickX - textPosition.x, clickY - textPosition.y);
+    // Fix: Add safety check for textPosition
+    const safeTextPosition = textPosition || { x: 250, y: 40 };
+    const distance = Math.hypot(clickX - safeTextPosition.x, clickY - safeTextPosition.y);
     if (distance < 100) {
       setIsDragging(true);
-      setDragoffset({ x: clickX - textPosition.x, y: clickY - textPosition.y });
+      setDragoffset({ x: clickX - safeTextPosition.x, y: clickY - safeTextPosition.y });
     }
   };
 
   const handleMouseMove = (e) => {
     if (!isDragging) return;
     const canvas = canvasRef.current;
+    if (!canvas) return;
+    
     const rect = canvas.getBoundingClientRect();
     const newX = e.clientX - rect.left - dragOffset.x;
     const newY = e.clientY - rect.top - dragOffset.y;
@@ -118,37 +170,48 @@ const Preview = ({ selectedCaption, selectedMeme, user }) => {
   };
 
   const uploadMeme = async (blob) => {
+    setProgress(7);
     const auth = getAuth();
     const user = auth.currentUser;
+
+    if(createdAt){
+      await deleteDoc(doc(db, 'memes', memeId));
+    }
 
     if (!user) {
       toast.error("Please login to save your meme!");
       console.error("No user found. Upload aborted.");
       return;
     }
-
+    setProgress(20);
     const filePath = `memes/${user.uid}/${Date.now()}.png`;
     const storageRef = ref(storage, filePath);
 
     try {
+      setProgress(40)
       const snapshot = await uploadBytes(storageRef, blob);
       console.log("Upload complete. Snapshot:", snapshot);
-
+      setProgress(55);
       const downloadURL = await getDownloadURL(storageRef);
       console.log("Download URL:", downloadURL);
-
+      setProgress(70);
       await addDoc(collection(db, 'memes'), {
         userId: user.uid,
         url: downloadURL,
         caption,
         fontSize,
-        position: textPosition,
+        fontColor,
+        strokeColor,
+        width,
+        fontFamily,
+        position: textPosition || { x: 250, y: 40 },
         templateUrl: selectedMeme?.url || '',
         createdAt: new Date()
       });
       
-
+      setProgress(90);
       toast.success("Meme saved successfully!");
+      setProgress(100);
     } catch (err) {
       console.error("Upload error:", err);
       toast.error("Failed to save meme!");
@@ -157,6 +220,10 @@ const Preview = ({ selectedCaption, selectedMeme, user }) => {
 
   const handleDownload = () => {
     const canvas = canvasRef.current;
+    if (!canvas) {
+      toast.error("Canvas not available for download");
+      return;
+    }
 
     canvas.toBlob((blob) => {
       if (!blob) {
@@ -179,8 +246,11 @@ const Preview = ({ selectedCaption, selectedMeme, user }) => {
   };
 
   const handleSave = () => {
-    setIsLoading(true);
     const canvas = canvasRef.current;
+    if (!canvas) {
+      toast.error("Canvas not available for saving");
+      return;
+    }
 
     canvas.toBlob((blob) => {
       if (!blob) {
@@ -188,12 +258,15 @@ const Preview = ({ selectedCaption, selectedMeme, user }) => {
         return;
       }
       uploadMeme(blob);
-      setIsLoading(false);
     }, 'image/png'); 
   };
 
   const handleShare = () => {
     const canvas = canvasRef.current;
+    if (!canvas) {
+      toast.error("Canvas not available for sharing");
+      return;
+    }
   
     canvas.toBlob(async (blob) => {
       if (!blob) {
@@ -224,7 +297,15 @@ const Preview = ({ selectedCaption, selectedMeme, user }) => {
   
   return (
     <div className='bg-gradient-to-br from-purple-900 via-blue-900 to-indigo-900'>
-      <Navbar user={user} />
+      <div className="relative z-50">
+        <Navbar user={user} />
+      </div>
+      
+      <LoadingBar
+          color="#f11946"
+          progress={progress}
+          onLoaderFinished={() => setProgress(0)}
+        />
       <div>
         <div className='flex mt-8 ml-5'>
           <div>
@@ -320,17 +401,17 @@ const Preview = ({ selectedCaption, selectedMeme, user }) => {
           </div>
           <div className='w-1/4 mx-3'>
             <button
-              className='bg-orange-400 font-semibold rounded-md shadow-md my-2 py-3 text-md px-2 hover:bg-white hover:border-2 hover:border-orange-400 border-solid w-full hover:text-orange-400 border-2 border-orange-400'
+              className='bg-orange-400 flex font-semibold rounded-md shadow-md my-2 py-3 text-md px-2 hover:bg-white hover:border-2 hover:border-orange-400 border-solid w-full hover:text-orange-400 border-2 border-orange-400'
               onClick={handleDownload}
             >
-              📥 Download Meme as Image
+              <p className='flex mx-3'>📥 Download Meme as Image</p>
             </button>
 
             <button
               className='bg-orange-400 flex justify-center font-semibold rounded-md shadow-md my-2 py-3 text-md px-2 hover:bg-white hover:border-2 hover:border-orange-400 border-solid w-full hover:text-orange-400 border-2 border-orange-400'
               onClick={handleSave}
             >
-              <p className='flex mx-3'>💾 Save Meme</p> {isLoading && <Spinner2 />}
+              <p className='flex mx-3'>💾 Save Meme</p>
             </button>
             <button
               className='bg-orange-400 font-semibold rounded-md shadow-md my-2 flex justify-center py-3 text-md px-2 hover:bg-white hover:border-2 hover:border-orange-400 border-solid w-full hover:text-orange-400 border-2 border-orange-400'

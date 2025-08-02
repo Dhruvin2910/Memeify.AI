@@ -5,16 +5,32 @@ import { toast } from 'react-toastify';
 import Navbar from '../components/Navbar';
 import { getStorage, ref, getBlob } from "firebase/storage";
 import { useNavigate } from 'react-router-dom';
+import Spinner2 from '../components/Spinner2';
 
-const History = ({ user }) => {
+const History = ({ user, setCaption, 
+    setFontSize, 
+    settextPosition, 
+    setWidth, 
+    setFontFamily, 
+    setFontColor, 
+    setStrokeColor,
+    setSelectedMeme,
+    setCreatedAt,
+    setMemeId
+    }) => {
     const [memes, setMemes] = useState([]);
     const navigate = useNavigate();
+    const [isLoading, setIsLoading] = useState(false);
+    const [searchTerm, setSearchTerm] = useState('');
+
+     
 
     useEffect(() => {
         if (!user) return;
 
         const fetchMemes = async () => {
             try {
+                setIsLoading(true);
                 const q = query(
                     collection(db, 'memes'),
                     where('userId', '==', user.uid)
@@ -26,6 +42,7 @@ const History = ({ user }) => {
                     ...doc.data(),
                 }));
                 setMemes(memesList);
+                setIsLoading(false);
             } catch (err) {
                 console.error('Error fetching memes:', err);
                 toast.error('Failed to fetch your meme history.');
@@ -85,10 +102,25 @@ const History = ({ user }) => {
             toast.error('Failed to delete meme.');
         }
     };
-    
-    const handleEdit = (meme) => {
-        navigate('/preview', {state: {meme}});
+    const filteredMemes = memes.filter((meme) =>
+        meme.caption?.toLowerCase().includes(searchTerm.toLowerCase())
+      );
+      
+    const handleEdit = (index, id) => {
+        setCaption(memes[index].caption);
+        setFontSize(memes[index].fontSize);
+        // Fix: Use 'position' instead of 'textPosition' and provide fallback
+        settextPosition(memes[index].position || { x: 250, y: 40 });
+        setWidth(memes[index].width);
+        setFontFamily(memes[index].fontFamily);
+        setFontColor(memes[index].fontColor);
+        setStrokeColor(memes[index].strokeColor);
+        setSelectedMeme(memes[index].templateUrl);
+        setCreatedAt(memes[index].createdAt);
+        setMemeId(id);
+        navigate('/preview');
     }
+
     return (
         <div className="min-h-screen bg-gradient-to-br from-purple-900 via-blue-900 to-indigo-900">
             <Navbar user={user} />
@@ -96,9 +128,19 @@ const History = ({ user }) => {
             <div className="max-w-5xl mx-auto text-center my-6 w-full shadow-md bg-white bg-opacity-20 py-1 rounded-md">
                 <h1 className="text-3xl font-bold text-orange-400 mb-2">Your Meme Gallery</h1>
             </div>
-
-            <div className="flex flex-wrap justify-center p-4">
-                {memes.map((meme, index) => (
+            <div className="mb-6 flex justify-center">
+              <input
+                type="text"
+                placeholder="Search memes..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="w-3/4 px-4 py-3 bg-white/20 border border-white/30 rounded-lg text-xl font-semibold text-white placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-pink-400 focus:border-transparent"
+              />
+            </div>
+            <div className='flex justify-center items-center'>
+               {isLoading? <Spinner2 />: 
+             <div className="flex flex-wrap justify-center p-4">
+                {filteredMemes.map((meme, index) => (
                     <div
                     key={index}
                     className="relative group hover:scale-105 transition-transform duration-300 m-4 w-fit"
@@ -114,7 +156,7 @@ const History = ({ user }) => {
                     <div className="absolute bottom-0 left-0 right-0 rounded-lg bg-white/90 h-1/4 rounded-b-lg opacity-0 group-hover:opacity-100 transition duration-300 flex items-center justify-center">
                         <div className="flex gap-4">
                         <button
-                            onClick={() => handleEdit(index)}
+                            onClick={() => handleEdit(index, meme.id)}
                             className="bg-black text-black px-2 py-1 rounded-full shadow hover:scale-110 transition"
                             title="Edit"
                         >
@@ -145,7 +187,12 @@ const History = ({ user }) => {
                     </div>
                     </div>
                 ))}
-                </div>
+                </div>} 
+                    {!isLoading && filteredMemes.length === 0 && (
+                    <p className="text-white text-xl font-semibold mt-10">No memes found for "{searchTerm}".</p>
+                )}
+            </div>
+            
         </div>
     );
 };

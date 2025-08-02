@@ -6,6 +6,8 @@ import Spinner from '../components/Spinner';
 import { useNavigate } from 'react-router-dom';
 
 const Home = ({ user, selectedMeme, setSelectedMeme, selectedCaption, setSelectedCaption }) => {
+  console.log('Home - selectedCaption:', selectedCaption);
+  console.log('Home - selectedMeme:', selectedMeme);
   const navigate = useNavigate();
   const [memes, setMemes] = useState([]);
   const [captions, setCaptions] = useState([]);
@@ -105,7 +107,7 @@ const Home = ({ user, selectedMeme, setSelectedMeme, selectedCaption, setSelecte
       const data = await response.json();
       const memeUrl = data.data[0]?.url;
       if (memeUrl) {
-        selectedMeme(memeUrl);
+        setSelectedMeme(memeUrl);
       } else {
         toast.error("Failed to generate meme!");
       }
@@ -294,6 +296,16 @@ const Home = ({ user, selectedMeme, setSelectedMeme, selectedCaption, setSelecte
               </div>
             </div>
 
+            {/* Browse Templates Button */}
+            <div className="text-center mb-6">
+              <button 
+                onClick={() => setShowTemplates(true)}
+                className="w-full bg-gradient-to-r from-orange-500 to-red-600 hover:from-orange-600 hover:to-red-700 text-white font-semibold py-3 px-6 rounded-lg transition-all duration-200 transform hover:scale-105"
+              >
+                Browse Templates
+              </button>
+            </div>
+
             {/* Divider */}
             <div className="flex items-center my-8">
               <div className="flex-1 border-t border-white/20"></div>
@@ -301,7 +313,7 @@ const Home = ({ user, selectedMeme, setSelectedMeme, selectedCaption, setSelecte
               <div className="flex-1 border-t border-white/20"></div>
             </div>
 
-            {/* Upload & Templates */}
+            {/* Upload Section */}
             <div className="space-y-4">
               <div className="text-center">
                 <label className="block text-white font-semibold text-lg mb-4">Upload Your Image</label>
@@ -321,17 +333,6 @@ const Home = ({ user, selectedMeme, setSelectedMeme, selectedCaption, setSelecte
                   </label>
                 </div>
               </div>
-
-              <div className="text-center">
-                <span className="text-white/60 font-medium">OR</span>
-              </div>
-
-              <button 
-                onClick={() => setShowTemplates(true)}
-                className="w-full bg-gradient-to-r from-orange-500 to-red-600 hover:from-orange-600 hover:to-red-700 text-white font-semibold py-3 px-6 rounded-lg transition-all duration-200 transform hover:scale-105"
-              >
-                Browse Templates
-              </button>
             </div>
           </div>
         </div>
@@ -408,7 +409,7 @@ const Home = ({ user, selectedMeme, setSelectedMeme, selectedCaption, setSelecte
             </div>
             
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-              {filteredMemes.slice(0, 20).map((meme, index) => (
+              {filteredMemes.map((meme, index) => (
                 <div
                   onClick={() => { handleMemeSelect(meme); setShowTemplates(false); }}
                   key={index}
@@ -446,6 +447,7 @@ const Home = ({ user, selectedMeme, setSelectedMeme, selectedCaption, setSelecte
               selectedCaption={selectedCaption}
               setSelectedCaption={setSelectedCaption}
               onUseCaption={(caption) => {
+                console.log('onUseCaption called with:', caption);
                 setSelectedCaption(caption);
                 setIsCaptionModalOpen(false);
               }}

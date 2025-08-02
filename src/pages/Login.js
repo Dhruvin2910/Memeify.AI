@@ -64,7 +64,7 @@ const Login = () => {
               value={email}
               onChange={e => setEmail(e.target.value)}
               required
-              className="px-4 py-2 rounded-lg border-2 border-yellow-300 focus:border-pink-400 focus:outline-none bg-yellow-50 placeholder-gray-500 text-lg transition"
+              className="px-4 text-black py-2 rounded-lg border-2 border-yellow-300 focus:border-pink-400 focus:outline-none bg-yellow-50 placeholder-gray-500 text-lg transition"
             />
             <input 
               type="password"
@@ -72,7 +72,7 @@ const Login = () => {
               value={password}
               onChange={e => setPassword(e.target.value)}
               required
-              className="px-4 py-2 rounded-lg border-2 border-yellow-300 focus:border-pink-400 focus:outline-none bg-yellow-50 placeholder-gray-500 text-lg transition"
+              className="px-4 text-black py-2 rounded-lg border-2 border-yellow-300 focus:border-pink-400 focus:outline-none bg-yellow-50 placeholder-gray-500 text-lg transition"
             />
             <button type="submit" className="mt-2 bg-gradient-to-r from-yellow-400 via-pink-400 to-purple-400 text-white font-bold py-2 rounded-lg shadow-md hover:scale-105 transition-transform text-lg flex items-center justify-center gap-2">
               <span>Login</span>
@@ -88,8 +88,8 @@ const Login = () => {
               Sign up now
             </button>
           </div>
-          <button onClick={handleGoogleSignIn}>Signup With Google</button>
-          <button>Forgot Password?</button>
+          <button className='text-black'  onClick={handleGoogleSignIn}>Signup With Google</button>
+          <button className='text-black' >Forgot Password?</button>
           <div className="absolute -bottom-8 left-1/2 transform -translate-x-1/2 bg-white px-3 py-1 rounded-full shadow-lg border-2 border-pink-300 text-pink-600 font-bold text-xs flex items-center gap-2">
             <span role="img" aria-label="meme">🧠</span> Memes make everything better!
           </div>
