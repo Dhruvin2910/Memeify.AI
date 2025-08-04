@@ -1,0 +1,18 @@
+[
+    {
+      "question": "Is Memeify free to use?",
+      "answer": "Yes, all core features are free. Premium may come later!"
+    },
+    {   
+      "question": "Do I need to sign up?",
+      "answer": "You can browse templates without logging in, but you need an account to save or download memes."
+    },
+    {
+      "question": "Can I download my memes?",
+      "answer": "Absolutely! You can download your memes in high quality once you're done editing."
+    },
+    {
+      "question": "Is my data secure?",
+      "answer": "Yes, we use Firebase and industry-standard security practices."
+    }
+]

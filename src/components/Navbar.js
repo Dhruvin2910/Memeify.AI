@@ -53,7 +53,7 @@ const Navbar = ({ user }) => {
   }
 
   return (
-    <nav className="w-full flex items-center justify-between px-8 py-2 bg-white/80 shadow-md border-b-4 border-yellow-400 sticky top-0 z-10"> {/* Decreased py-4 to py-2 */}
+    <nav className="w-full flex items-center justify-between px-8 py-2 bg-white/80 shadow-md border-b-4 border-yellow-400 sticky z-10"> {/* Decreased py-4 to py-2 */}
       <div className="flex items-center gap-4"> {/* Increased gap for space between logo and buttons */}
         <img
           src={logo}
