@@ -6,7 +6,8 @@ import { signOut } from 'firebase/auth';
 import { useNavigate } from 'react-router-dom';
 import logo from '../assets/logo.png';
 
-const Navbar = ({ user }) => {
+const Navbar = ({ user, scrollToSection, refs }) => {
+  const { worksRef, demoRef, faqRef } = refs;
   const navigate = useNavigate();
   const [username, setUserName] = useState('');
 
@@ -28,7 +29,7 @@ const Navbar = ({ user }) => {
     try {
       await signOut(auth);
       toast.success('User Logged out successfully!');
-      navigate('/login');
+      navigate('/main');
     } catch (err) {
       console.error('SignOut Error:', err);
       toast.error('Something went wrong!');
@@ -61,24 +62,50 @@ const Navbar = ({ user }) => {
           className="w-10 h-10 rounded-full border-2 border-pink-400 shadow"
         />
         <span className="text-xl font-extrabold text-purple-700 tracking-tight">Memeify</span>
-        <button 
-          onClick={()=>navigate('/')}
-          className="ml-10 text-purple-500 font-semibold font-serif text-xl hover:shadow-md px-2 py-2 rounded-lg active:shadow-lg active:scale-105 transition-transform"
-        >
-          Home
-        </button>
-        <button 
-          onClick={handlePreview}
-          className="mx-3 text-purple-500 font-semibold font-serif text-xl hover:shadow-md px-2 py-2 rounded-lg active:shadow-lg active:scale-105 transition-transform"
-        >
-          Preview
-        </button>
-        <button 
-          onClick={handleHistory}
-          className="mx-3 text-purple-500 font-semibold font-serif text-xl hover:shadow-md px-2 py-2 rounded-lg active:shadow-lg active:scale-105 transition-transform"
-        >
-          My Memes
-        </button>
+        {user? (
+          <div>
+            <button 
+              onClick={()=>navigate('/')}
+              className="ml-10 text-purple-500 font-semibold font-serif text-xl hover:shadow-md px-2 py-2 rounded-lg active:shadow-lg active:scale-105 transition-transform"
+            >
+              Home
+            </button>
+            <button 
+              onClick={handlePreview}
+              className="mx-3 text-purple-500 font-semibold font-serif text-xl hover:shadow-md px-2 py-2 rounded-lg active:shadow-lg active:scale-105 transition-transform"
+            >
+              Preview
+            </button>
+            <button 
+              onClick={handleHistory}
+              className="mx-3 text-purple-500 font-semibold font-serif text-xl hover:shadow-md px-2 py-2 rounded-lg active:shadow-lg active:scale-105 transition-transform"
+            >
+              My Memes
+            </button>
+          </div>
+         ) : (
+          <div>
+            <button 
+              onClick={()=> scrollToSection(worksRef)}
+              className="ml-10 text-purple-500 font-semibold font-serif text-xl hover:shadow-md px-2 py-2 rounded-lg active:shadow-lg active:scale-105 transition-transform"
+            >
+              Features
+            </button>
+            <button 
+              onClick={() => scrollToSection(demoRef)}
+              className="mx-3 text-purple-500 font-semibold font-serif text-xl hover:shadow-md px-2 py-2 rounded-lg active:shadow-lg active:scale-105 transition-transform"
+            >
+              Demo
+            </button>
+            <button 
+              onClick={() => scrollToSection(faqRef)}
+              className="mx-3 text-purple-500 font-semibold font-serif text-xl hover:shadow-md px-2 py-2 rounded-lg active:shadow-lg active:scale-105 transition-transform"
+            >
+              FAQ's
+            </button>
+          </div>
+        )}
+        
       </div>
       {user ? (
         <div className="flex items-center gap-4">

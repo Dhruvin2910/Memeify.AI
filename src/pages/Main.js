@@ -1,14 +1,16 @@
 import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import Navbar from '../components/Navbar';
-import meme1 from '../assets/meme1.png'
-import meme2 from '../assets/meme2.png'
-import meme3 from '../assets/meme3.png'
-import meme4 from '../assets/meme4.png'
-import meme5 from '../assets/meme5.png'
-import meme6 from '../assets/meme6.png'
+import meme1 from '../assets/meme1.png';
+import meme2 from '../assets/meme2.png';
+import meme3 from '../assets/meme3.png';
+import meme4 from '../assets/meme4.png';
+import meme5 from '../assets/meme5.png';
+import meme6 from '../assets/meme6.png';
 import faqs from '../assets/FAQs.json';
+import { collection, getCountFromServer } from 'firebase/firestore';
+import { db } from '../firebase';
 
 const fadeUp = {
   hidden: { opacity: 0, y: 40 },
@@ -20,10 +22,24 @@ const Main = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [memes, setMemes] = useState([]);
   const [openIndex, setOpenIndex] = useState(null);
+  const [userCount, setUserCount] = useState('');
+
+  const worksRef = useRef(null);
+  const demoRef = useRef(null);
+  const faqRef = useRef(null);
 
   const toggleAccordion = (index) => {
     setOpenIndex(openIndex === index ? null : index);
   };
+
+  useEffect(() => {
+    const fetchUserCountFromFirestore = async () => {
+      const usersRef = collection(db, "users");
+      const snapshot = await getCountFromServer(usersRef);
+      return snapshot.data().count;
+    }
+    fetchUserCountFromFirestore().then(setUserCount);
+  },[])
 
   useEffect(() => {
     const fetchMemes = async () => {
@@ -41,11 +57,14 @@ const Main = () => {
     meme.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
+  const scrollToSection = (ref) => {
+    ref.current.scrollIntoView({ behavior: 'smooth' });
+  }
 
 
   return (
     <div className="bg-gray-100 text-gray-800">
-        <Navbar />
+        <Navbar scrollToSection={scrollToSection} refs={{ worksRef, demoRef, faqRef }}/>
       {/* Hero Section */}
       <motion.section
         initial="hidden"
@@ -107,7 +126,7 @@ const Main = () => {
 
 
       {/* How it Works */}
-      <section className="py-16 bg-white">
+      <section ref={worksRef} className="py-16 bg-white">
         <div className="max-w-6xl mx-auto px-4 text-center">
           <h2 className="text-3xl font-bold mb-10">How Memeify Works</h2>
           <div className="grid md:grid-cols-3 gap-10 text-left">
@@ -143,44 +162,97 @@ const Main = () => {
       </section>
 
       {/* Demo Memes Section */}
-      <section className="py-16 bg-gray-100">
-        <div className="max-w-6xl mx-auto px-4 text-center">
-          <h2 className="text-3xl font-bold mb-10">Popular Memes Made with Memeify</h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+      <section ref={demoRef} className="py-20 bg-gradient-to-br from-slate-50 to-blue-50">
+        <div className="max-w-7xl mx-auto px-6">
+          <div className="text-center mb-16">
+            <h2 className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent mb-4">
+              Popular Memes Made with Memeify
+            </h2>
+            <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+              See what our community is creating. From relatable moments to viral sensations, 
+              discover the endless possibilities of AI-powered meme generation.
+            </p>
+          </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {[
-              { url: meme1, caption: 'When you open Memeify for the first time' },
-              { url: meme2, caption: 'That Monday morning vibe 💤' },
-              { url: meme3, caption: 'AI did not come to play 😎' },
-              { url: meme4, caption: 'Me trying to be productive' },
-              { url: meme5, caption: 'When the template fits too well' },
-              { url: meme6, caption: 'Just one more meme, I swear!' }
+              { url: meme1, caption: 'Me: Plans a trip, Life: Cancelled!', category: 'Reaction' },
+              { url: meme2, caption: 'Pranking your roommate so much, they start questioning if they areon hidden camera 😎', category: 'Mood' },
+              { url: meme3, caption: 'When you spend more time choosing a filter than actually taking photo 💤', category: 'Tech' },
+              { url: meme4, caption: 'When you sacrifice you queen for a pawn and pretend it was all of you master plan', category: 'Relatable' },
+              { url: meme5, caption: 'Trying to explain a meme to you parents like...', category: 'Meta' },
+              { url: meme6, caption: 'When you check your bank account after a night out and see all the transactions you don not remember making', category: 'Addiction' }
             ].map((meme, index) => (
               <motion.div
                 key={index}
-                className="bg-white rounded-2xl shadow-md overflow-hidden transition-transform duration-300 hover:scale-105"
-                initial={{ opacity: 0, scale: 0.95 }}
-                whileInView={{ opacity: 1, scale: 1 }}
+                className="group relative bg-white rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden border border-gray-100 hover:border-indigo-200"
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
-                transition={{ duration: 0.4, delay: index * 0.1 }}
+                transition={{ duration: 0.5, delay: index * 0.1 }}
+                whileHover={{ y: -5 }}
               >
-              <div className="w-full aspect-[4/3] overflow-hidden b g-gray-200">
-                <img
-                  src={meme.url}
-                  alt={`Meme ${index + 1}`}
-                  className="w-full h-full object-cover"
-                />
-              </div>
-              <div className="p-4 text-left">
-                <p className="font-medium text-gray-700">{meme.caption}</p>
-              </div>
-            </motion.div>
+                {/* Category Badge */}
+                <div className="absolute top-3 left-3 z-10">
+                  <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-semibold bg-indigo-100 text-indigo-700 border border-indigo-200">
+                    {meme.category}
+                  </span>
+                </div>
+                
+                {/* Image Container - Medium size with proper visibility */}
+                <div className="relative p-4">
+                  <div className="w-full h-48 bg-gray-100 rounded-xl overflow-hidden flex items-center justify-center">
+                    <img
+                      src={meme.url}
+                      alt={`Meme ${index + 1}`}
+                      className="max-w-full max-h-full object-contain"
+                    />
+                  </div>
+                </div>
+                
+                {/* Content */}
+                <div className="px-4 pb-4">
+                  <p className="text-gray-800 font-medium text-base leading-relaxed group-hover:text-indigo-700 transition-colors duration-300">
+                    {meme.caption}
+                  </p>
+                </div>
+              </motion.div>
             ))}
           </div>
         </div>
       </section>
 
+      {/* Fun Data */}
+      <section className="py-16 bg-gradient-to-b from-blue-100 to-blue-50">
+        <div className="max-w-6xl mx-auto px-4 text-center">
+          <h2 className="text-4xl font-extrabold text-indigo-900 mb-12">Memeify by the Numbers</h2>
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8">
+            
+            <div className="bg-white shadow-md rounded-xl p-6 hover:shadow-lg transition duration-300">
+              <p className="text-4xl mb-2">👥</p>
+              <p className="text-2xl font-bold text-indigo-800">{userCount}k+</p>
+              <p className="text-gray-600 mt-1">Users</p>
+            </div>
+
+            <div className="bg-white shadow-md rounded-xl p-6 hover:shadow-lg transition duration-300">
+              <p className="text-4xl mb-2">🎨</p>
+              <p className="text-2xl font-bold text-indigo-800">200+</p>
+              <p className="text-gray-600 mt-1">Templates</p>
+            </div>
+
+            <div className="bg-white shadow-md rounded-xl p-6 hover:shadow-lg transition duration-300">
+              <p className="text-4xl mb-2">🔥</p>
+              <p className="text-2xl font-bold text-indigo-800">150K+</p>
+              <p className="text-gray-600 mt-1">Memes Made</p>
+            </div>
+
+          </div>
+        </div>
+      </section>
+
+
       {/* FAQ SECTION */}
-      <section className="py-16 bg-gradient-to-b from-gray-700 to-gray-900">
+      <section ref={faqRef} className="py-16 bg-gradient-to-b from-gray-700 to-gray-900">
         <div className="max-w-5xl mx-auto px-4">
           <h2 className="text-3xl text-white font-bold text-center mb-10">Frequently Asked Questions</h2>
           <div className="max-w-xl mx-auto mt-10">
@@ -245,6 +317,16 @@ const Main = () => {
         <p className="text-lg mb-6">Login to start memeifying your ideas instantly.</p>
         <button onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} className="bg-white text-indigo-700 font-semibold px-6 py-2 rounded-xl">Try Memeify Now</button>
       </motion.section>
+
+      <footer className="bg-indigo-900 text-white py-6 text-center text-sm">
+        <div>
+          &copy; {new Date().getFullYear()} Memeify • Built with ❤️ by Dhruvin Patel • 
+          <a href="https://github.com/Dhruvin2910/Memeify.AI" target="_blank" rel="noreferrer" className="underline ml-1 hover:text-yellow-300">
+            GitHub
+          </a>
+        </div>
+      </footer>
+
     </div>
   );
 };
