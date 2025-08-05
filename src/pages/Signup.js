@@ -4,6 +4,7 @@ import { auth, db } from '../firebase'
 import { createUserWithEmailAndPassword } from 'firebase/auth'
 import { doc, setDoc } from 'firebase/firestore'
 import { useNavigate } from 'react-router-dom';
+import Navbar from '../components/Navbar';
  
 
 const Signup = () => {
@@ -43,7 +44,8 @@ const Signup = () => {
     }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-yellow-200 via-pink-200 to-purple-200">
+    <div className="min-h-screen items-center justify-center bg-gradient-to-br from-yellow-200 via-pink-200 to-purple-200">
+      <Navbar />
       <div className="bg-white/90 rounded-xl shadow-2xl p-6 w-full max-w-sm flex flex-col items-center border-4 border-dashed border-yellow-400 relative">
         <img src="https://i.imgflip.com/30b1gx.jpg" alt="Meme" className="w-20 h-20 rounded-full border-4 border-pink-400 shadow-lg -mt-14 mb-2 object-cover" />
         <h2 className="text-2xl font-extrabold text-purple-700 mb-1 text-center">Sign Up & Become a Meme Lord!</h2>
