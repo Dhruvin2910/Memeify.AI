@@ -85,6 +85,12 @@ const Navbar = ({ user, scrollToSection, refs }) => {
             >
               My Memes
             </button>
+            <button
+              onClick={()=>navigate('/exploreMeme')}
+              className="mx-3 text-purple-500 font-semibold font-serif text-xl hover:shadow-md px-2 py-2 rounded-lg active:shadow-lg active:scale-105 transition-transform"
+            >
+              Explore Memes
+            </button>
           </div>
         ) : (
           <div>

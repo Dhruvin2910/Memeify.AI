@@ -13,7 +13,7 @@ import ForgotPassword from './components/ForgotPassword';
 import MemeMaker from './pages/MemeMaker';
 import '@fortawesome/fontawesome-free/css/all.min.css';
 import Main from './pages/Main';
-
+import ExploreMemes from './pages/ExploreMemes';
 
 
 function App() {
@@ -30,6 +30,7 @@ function App() {
   const [strokeColor, setStrokeColor] = useState('Black');
   const [createdAt, setCreatedAt] = useState('');
   const [memeId, setMemeId] = useState('');
+  
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
@@ -78,6 +79,7 @@ function App() {
         <Route path="/forgotpassword" element={<ForgotPassword />} />
         <Route path="/mememaker" element={<MemeMaker />} />
         <Route path='/main' element={<Main />} />
+        <Route path='/exploreMeme' element={<ExploreMemes user={user} />}/>
       </Routes>
       <ToastContainer />
     </BrowserRouter>
