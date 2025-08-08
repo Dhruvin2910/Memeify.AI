@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { db } from '../firebase';
-import { collection, doc, setDoc, deleteDoc, getDoc, getDocs } from 'firebase/firestore';
+import { collection, doc, setDoc, deleteDoc, updateDoc, getDoc, increment, getDocs } from 'firebase/firestore';
 import Spinner2 from '../components/Spinner2';
 import Navbar from '../components/Navbar';
+import { toast } from 'react-toastify';
 
 const ExploreMemes = ({ user }) => {
     const [memes, setMemes] = useState([]);
@@ -11,31 +12,93 @@ const ExploreMemes = ({ user }) => {
     const [likedMemes, setLikedMemes] = useState({});
     const [likedByUser, setLikedByUser] = useState({});
 
-    const toggleLike = (id) => {
-        setLikedMemes((prev) => ({
-            ...prev,
-            [id]: !prev[id],
-        }));
+    const toggleLike = async (memeId) => {
+        if(!user) return toast.error("Please log in to like memes!");
+
+        const likeRef = doc(db, "memes", memeId, "likesBy", user.uid);
+        const memeRef = doc(db, "memes", memeId);
+
+        const alreadyLiked = likedByUser[memeId];
+
+        try{
+            if(alreadyLiked){
+                //Unlike
+                await deleteDoc(likeRef);
+                await updateDoc(memeRef, { likes: increment(-1) });
+
+                setLikedMemes((prev) => ({
+                    ...prev,
+                    [memeId]: prev[memeId] - 1
+                }));  
+            }else{
+                //like
+                await setDoc(likeRef, { liked: true });
+                await updateDoc(memeRef, { likes: increment(1) });
+
+                setLikedMemes((prev) => ({
+                    ...prev,
+                    [memeId]: (prev[memeId] || 0) + 1
+                })); 
+            }
+           //toggel local user like status
+           setLikedByUser((prev) => ({
+                ...prev,
+                [memeId]: !alreadyLiked
+           }))
+        }catch(err){
+            toast.error("Error updating like")
+            console.log("Error updating like:", err);
+        }
     };
     
+
+
     useEffect(() => {
         const fetchAllMemes = async () => {
-            try {
-                setIsLoading(true);
-                const snapshot = await getDocs(collection(db, 'memes'));
-                const memesList = snapshot.docs.map((doc) => ({
-                    id: doc.id,
-                    ...doc.data(),
-                }));
-                setMemes(memesList);
-                setIsLoading(false);
-            } catch (err) {
-                console.error('Error fetching memes:', err);
-            }
+           try {
+              setIsLoading(true);
+              const snapshot = await getDocs(collection(db, "memes"));
+     
+              const memesList = await Promise.all(snapshot.docs.map(async (docSnap) => {
+                 const data = docSnap.data();
+     
+                 // Check if current user liked this meme
+                 let userLiked = false;
+                 if (user) {
+                    const likeDoc = await getDoc(doc(db, "memes", docSnap.id, "likesBy", user.uid));
+                    userLiked = likeDoc.exists();
+                 }
+     
+                 return {
+                    id: docSnap.id,
+                    ...data,
+                    likes: data.likes || 0,
+                    userLiked
+                 };
+              }));
+     
+              setMemes(memesList);
+     
+              // Store likes count
+              const likesCountObj = {};
+              const likedStatusObj = {};
+              memesList.forEach(m => {
+                 likesCountObj[m.id] = m.likes;
+                 likedStatusObj[m.id] = m.userLiked;
+              });
+     
+              setLikedMemes(likesCountObj);
+              setLikedByUser(likedStatusObj);
+              setIsLoading(false);
+           } catch (err) {
+              toast.error("Error fetching memes");
+              console.log("Error Fetching Memes: ", err);
+              setIsLoading(false);
+           }
         };
-
         fetchAllMemes();
-    }, []);
+     }, [user]);
+     
 
     const filteredMemes = memes.filter((meme) =>
         meme.caption?.toLowerCase().includes(searchTerm.toLowerCase())
@@ -73,14 +136,15 @@ const ExploreMemes = ({ user }) => {
                                     className="h-72 w-auto rounded-lg shadow-md border-white border-2"
                                     onDoubleClick={() => toggleLike(meme.id)}
                                 />
-                                <div className="flex justify-center mt-2">
+                                <div className="flex justify-center mt-2 items-center gap-2">
                                     <button onClick={() => toggleLike(meme.id)}>
                                         <i
-                                        className={`fa-heart text-2xl transition ${
-                                            likedMemes[meme.id] ? 'fa-solid text-pink-500' : 'fa-regular text-white'
-                                        }`}
+                                            className={`fa-heart text-2xl transition ${
+                                                likedByUser[meme.id] ? 'fa-solid text-pink-500' : 'fa-regular text-white'
+                                            }`}
                                         ></i>
                                     </button>
+                                    <span className="text-white font-semibold">{likedMemes[meme.id] || 0}</span>
                                 </div>
                                 {/* Optional caption */}
                                 <p className="text-center text-white mt-2 font-semibold">{meme.caption}</p>

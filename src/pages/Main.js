@@ -2,12 +2,6 @@ import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useState, useEffect, useRef } from 'react';
 import Navbar from '../components/Navbar';
-import meme1 from '../assets/meme1.png';
-import meme2 from '../assets/meme2.png';
-import meme3 from '../assets/meme3.png';
-import meme4 from '../assets/meme4.png';
-import meme5 from '../assets/meme5.png';
-import meme6 from '../assets/meme6.png';
 import faqs from '../assets/FAQs.json';
 import { collection, getCountFromServer } from 'firebase/firestore';
 import { db } from '../firebase';
@@ -174,50 +168,8 @@ const Main = () => {
             </p>
           </div>
           
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {[
-              { url: meme1, caption: 'Me: Plans a trip, Life: Cancelled!', category: 'Reaction' },
-              { url: meme2, caption: 'Pranking your roommate so much, they start questioning if they areon hidden camera 😎', category: 'Mood' },
-              { url: meme3, caption: 'When you spend more time choosing a filter than actually taking photo 💤', category: 'Tech' },
-              { url: meme4, caption: 'When you sacrifice you queen for a pawn and pretend it was all of you master plan', category: 'Relatable' },
-              { url: meme5, caption: 'Trying to explain a meme to you parents like...', category: 'Meta' },
-              { url: meme6, caption: 'When you check your bank account after a night out and see all the transactions you don not remember making', category: 'Addiction' }
-            ].map((meme, index) => (
-              <motion.div
-                key={index}
-                className="group relative bg-white rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden border border-gray-100 hover:border-indigo-200"
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.5, delay: index * 0.1 }}
-                whileHover={{ y: -5 }}
-              >
-                {/* Category Badge */}
-                <div className="absolute top-3 left-3 z-10">
-                  <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-semibold bg-indigo-100 text-indigo-700 border border-indigo-200">
-                    {meme.category}
-                  </span>
-                </div>
-                
-                {/* Image Container - Medium size with proper visibility */}
-                <div className="relative p-4">
-                  <div className="w-full h-48 bg-gray-100 rounded-xl overflow-hidden flex items-center justify-center">
-                    <img
-                      src={meme.url}
-                      alt={`Meme ${index + 1}`}
-                      className="max-w-full max-h-full object-contain"
-                    />
-                  </div>
-                </div>
-                
-                {/* Content */}
-                <div className="px-4 pb-4">
-                  <p className="text-gray-800 font-medium text-base leading-relaxed group-hover:text-indigo-700 transition-colors duration-300">
-                    {meme.caption}
-                  </p>
-                </div>
-              </motion.div>
-            ))}
+          <div>
+
           </div>
         </div>
       </section>
