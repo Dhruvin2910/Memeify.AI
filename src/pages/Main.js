@@ -3,8 +3,10 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useState, useEffect, useRef } from 'react';
 import Navbar from '../components/Navbar';
 import faqs from '../assets/FAQs.json';
-import { collection, getCountFromServer } from 'firebase/firestore';
+import { collection, getCountFromServer, getDocs } from 'firebase/firestore';
 import { db } from '../firebase';
+import { useNavigate } from 'react-router-dom';
+import { toast } from 'react-toastify';
 
 const fadeUp = {
   hidden: { opacity: 0, y: 40 },
@@ -13,18 +15,46 @@ const fadeUp = {
 
 const Main = () => {
   const [isOpen, setIsOpen] = useState(false);
-  const [searchTerm, setSearchTerm] = useState('');
   const [memes, setMemes] = useState([]);
   const [openIndex, setOpenIndex] = useState(null);
   const [userCount, setUserCount] = useState('');
+  const [memesList, setMemesList] = useState([]);
 
   const worksRef = useRef(null);
   const demoRef = useRef(null);
   const faqRef = useRef(null);
+  const navigate = useNavigate();
 
   const toggleAccordion = (index) => {
     setOpenIndex(openIndex === index ? null : index);
   };
+
+  useEffect(() => {
+    const fetchAllMemes = async () => {
+      try{
+        const snapshot = await getDocs(collection(db, "memes"));
+
+        const memesList = snapshot.docs.map((docSnap) => {
+          const data = docSnap.data();
+
+          return {
+            id: docSnap.id,
+            ...data,
+          }
+        }).sort((a,b) => (b.likes || 0) - (a.likes || 0));
+
+        setMemesList(memesList);
+        console.log(memesList);
+      } catch(err){
+        console.log("Meme fetch error: ", err);
+        toast.error("Error fetching memes");
+      }   
+    };
+  
+    fetchAllMemes();
+  }, []);
+  
+  
 
   useEffect(() => {
     const fetchUserCountFromFirestore = async () => {
@@ -47,14 +77,14 @@ const Main = () => {
     fetchMemes();
   }, [])
 
-  const filteredMemes = memes.filter((meme) =>
-    meme.name.toLowerCase().includes(searchTerm.toLowerCase())
-  );
 
   const scrollToSection = (ref) => {
     ref.current.scrollIntoView({ behavior: 'smooth' });
   }
 
+  const toggleLike = () => {
+    toast.error("Please login to like memes");
+  }
 
   return (
     <div className="bg-gray-100 text-gray-800">
@@ -70,7 +100,7 @@ const Main = () => {
         <h1 className="text-5xl font-bold mb-4">Turn Any Topic into a Meme</h1>
         <p className="text-xl mb-6 max-w-xl">Just type a topic, pick a template, and our AI does the rest.</p>
         <div className="flex gap-4">
-          <button className="bg-white text-indigo-600 font-semibold px-6 py-2 rounded-xl">Generate Meme</button>
+          <button onClick={() => navigate('/login')} className="bg-white text-indigo-600 font-semibold px-6 py-2 rounded-xl">Login</button>
           <button onClick={() => setIsOpen(true)} className="border border-white text-white px-6 py-2 rounded-xl">Explore Templates</button>
         </div>
       </motion.section>
@@ -78,29 +108,17 @@ const Main = () => {
       {isOpen && (
         <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 transition-opacity duration-300 ease-in-out">
           <div className="bg-black/80 rounded-2xl shadow-2xl w-full max-w-3xl p-6 sm:p-8 transition-all duration-300 ease-in-out transform scale-100">
-            <div className="flex justify-between items-center border-b border-blue-100 pb-4 mb-4">
-              <h2 className="text-2xl font-semibold text-blue-700">Choose a Meme Template</h2>
+            <div className="flex justify-between items-center pb-4 mb-4">
               <button
                 onClick={() => setIsOpen(false)}
-                className="text-blue-600 hover:text-blue-800 text-2xl font-bold transition duration-200"
+                className="text-blue-600 hover:text-blue-800 text-2xl font-bold transition duration-200 right-10 absolute"
                 aria-label="Close"
               >
                 ×
               </button>
             </div>
-
-            <div className="mb-6">
-              <input
-                type="text"
-                placeholder="Search memes..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full px-4 py-2 border font-semibold bg-blue-200 border-blue-200 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400 transition duration-200"
-              />
-            </div>
-
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 max-h-[50vh] overflow-y-auto">
-              {filteredMemes.map((meme, index) => (
+              {memes.map((meme, index) => (
                 <div
                   key={index}
                   className="flex flex-col items-center p-2 bg-blue-50 hover:bg-blue-200 hover:scale-105 rounded-lg transition duration-200 shadow-sm"
@@ -169,7 +187,21 @@ const Main = () => {
           </div>
           
           <div>
-
+            {memesList.slice(0, 6).map((meme, index) => (
+              <div key={index}>
+                <img onDoubleClick={() => toggleLike()} src={meme.templateUrl} alt="" />
+                {meme.likes}
+                <div className="flex justify-center mt-2 items-center gap-2">
+                  <button onClick={() => toggleLike()}>
+                    <i
+                      className={`fa-heart text-2xl transition ${
+                      'fa-solid text-pink-500'
+                    }`}
+                    ></i>
+                  </button>
+                </div>
+              </div>
+            ))}
           </div>
         </div>
       </section>
