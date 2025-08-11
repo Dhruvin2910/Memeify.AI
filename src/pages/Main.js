@@ -29,6 +29,39 @@ const Main = () => {
     setOpenIndex(openIndex === index ? null : index);
   };
 
+  const scrollToTopandHighlightLogin = () => {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  
+    setTimeout(() => {
+      const loginBtn = document.getElementById("login-btn");
+      if (!loginBtn) return;
+  
+      // Function to apply pulse once
+      const pulse = () => {
+        loginBtn.classList.add(
+          "scale-110",
+          "transition-transform",
+          "duration-1000",
+          "ease-in-out"
+        );
+  
+        setTimeout(() => {
+          loginBtn.classList.remove(
+            "scale-110",
+            "transition-transform",
+            "duration-1000",
+            "ease-in-out"
+          );
+        }, 500);
+      };
+  
+      // Pulse twice
+      pulse();
+      setTimeout(pulse, 700);
+    }, 1200);
+  };
+  
+
   useEffect(() => {
     const fetchAllMemes = async () => {
       try{
@@ -100,7 +133,7 @@ const Main = () => {
         <h1 className="text-5xl font-bold mb-4">Turn Any Topic into a Meme</h1>
         <p className="text-xl mb-6 max-w-xl">Just type a topic, pick a template, and our AI does the rest.</p>
         <div className="flex gap-4">
-          <button onClick={() => navigate('/login')} className="bg-white text-indigo-600 font-semibold px-6 py-2 rounded-xl">Login</button>
+          <button id='login-btn' onClick={() => navigate('/login')} className="bg-white text-indigo-600 font-semibold px-6 py-2 rounded-xl hover:scale-105 transition-transform duration-300 active:scale-90">Login</button>
           <button onClick={() => setIsOpen(true)} className="border border-white text-white px-6 py-2 rounded-xl">Explore Templates</button>
         </div>
       </motion.section>
@@ -174,37 +207,60 @@ const Main = () => {
       </section>
 
       {/* Demo Memes Section */}
-      <section ref={demoRef} className="py-20 bg-gradient-to-br from-slate-50 to-blue-50">
-        <div className="max-w-7xl mx-auto px-6">
-          <div className="text-center mb-16">
-            <h2 className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent mb-4">
-              Popular Memes Made with Memeify
-            </h2>
-            <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-              See what our community is creating. From relatable moments to viral sensations, 
-              discover the endless possibilities of AI-powered meme generation.
-            </p>
+  <section
+    ref={demoRef}
+    className="py-20 bg-gradient-to-br from-gray-900 to-gray-800"
+  >
+  <div className="max-w-7xl mx-auto px-6">
+    {/* Heading */}
+    <div className="text-center mb-16">
+      <h2 className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-pink-400 to-purple-500 bg-clip-text text-transparent mb-4">
+        Popular Memes Made with Memeify
+      </h2>
+      <p className="text-lg text-gray-400 max-w-2xl mx-auto">
+        See what our community is creating. From relatable moments to viral sensations,
+        discover the endless possibilities of AI-powered meme generation.
+      </p>
+    </div>
+
+    {/* Meme Grid */}
+    <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
+      {memesList.slice(0, 6).map((meme, index) => (
+        <div
+          key={index}
+          className="bg-gray-800 rounded-xl shadow-lg overflow-hidden hover:shadow-pink-500/20 transition-shadow duration-300"
+        >
+          {/* Meme Image */}
+          <div className="relative">
+          <img
+            onDoubleClick={() => toggleLike()}
+            src={meme.url}
+            alt=""
+            className="w-full max-h-[350px] object-contain bg-gray-900 cursor-pointer hover:scale-105 transition-transform duration-300"
+          />
           </div>
-          
-          <div>
-            {memesList.slice(0, 6).map((meme, index) => (
-              <div key={index}>
-                <img onDoubleClick={() => toggleLike()} src={meme.templateUrl} alt="" />
-                {meme.likes}
-                <div className="flex justify-center mt-2 items-center gap-2">
-                  <button onClick={() => toggleLike()}>
-                    <i
-                      className={`fa-heart text-2xl transition ${
-                      'fa-solid text-pink-500'
-                    }`}
-                    ></i>
-                  </button>
-                </div>
-              </div>
-            ))}
+
+          {/* Like + Info */}
+          <div className="p-4 flex justify-between items-center">
+            <span className="text-gray-300 text-sm">{meme.likes} Likes</span>
+            <button
+              onClick={() => toggleLike()}
+              className="flex items-center gap-1 text-pink-500 hover:text-pink-400 transition"
+            >
+              <i
+                className={`fa-heart text-xl transition ${
+                  'fa-solid text-pink-500'
+                }`}
+              ></i>
+            </button>
           </div>
         </div>
-      </section>
+      ))}
+      <p className='text-white'>Login to view more memes</p>
+    </div>
+  </div>
+</section>
+
 
       {/* Fun Data */}
       <section className="py-16 bg-gradient-to-b from-blue-100 to-blue-50">
@@ -299,7 +355,7 @@ const Main = () => {
       >
         <h2 className="text-3xl font-bold mb-4">Start Memeifying Your Ideas</h2>
         <p className="text-lg mb-6">Login to start memeifying your ideas instantly.</p>
-        <button onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} className="bg-white text-indigo-700 font-semibold px-6 py-2 rounded-xl">Try Memeify Now</button>
+        <button onClick={() => scrollToTopandHighlightLogin()} className="bg-white text-indigo-700 font-semibold px-6 py-2 rounded-xl">Try Memeify Now</button>
       </motion.section>
 
       <footer className="bg-indigo-900 text-white py-6 text-center text-sm">

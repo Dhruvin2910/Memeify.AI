@@ -32,7 +32,7 @@ const Login = () => {
       await signInWithEmailAndPassword(auth, email, password);
       toast.success("Logged in Successfully!");
       startSessionTimer();
-      Navigate("/");
+      Navigate("/home");
     } catch (err) {
       console.log(err);
       toast.error("Invalid Credentials");

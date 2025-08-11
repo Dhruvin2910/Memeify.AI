@@ -136,6 +136,7 @@ const History = ({ user, setCaption,
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="w-3/4 px-4 py-3 bg-white/20 border border-white/30 rounded-lg text-xl font-semibold text-white placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-pink-400 focus:border-transparent"
               />
+              dro
             </div>
             <div className='flex justify-center items-center'>
                {isLoading? <Spinner2 />: 

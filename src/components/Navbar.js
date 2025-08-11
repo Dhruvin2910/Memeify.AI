@@ -32,7 +32,7 @@ const Navbar = ({ user, scrollToSection, refs }) => {
     try {
       await signOut(auth);
       toast.success('User Logged out successfully!');
-      navigate('/main');
+      navigate('/');
     } catch (err) {
       console.error('SignOut Error:', err);
       toast.error('Something went wrong!');
@@ -68,7 +68,7 @@ const Navbar = ({ user, scrollToSection, refs }) => {
         {user ? (
           <div>
             <button
-              onClick={() => navigate('/')}
+              onClick={() => navigate('/home')}
               className="ml-10 text-purple-500 font-semibold font-serif text-xl hover:shadow-md px-2 py-2 rounded-lg active:shadow-lg active:scale-105 transition-transform"
             >
               Home
@@ -104,7 +104,7 @@ const Navbar = ({ user, scrollToSection, refs }) => {
               onClick={() => scrollToSection?.(demoRef)}
               className="mx-3 text-purple-500 font-semibold font-serif text-xl hover:shadow-md px-2 py-2 rounded-lg active:shadow-lg active:scale-105 transition-transform"
             >
-              Demo
+              Explore Memes
             </button>
             <button
               onClick={() => scrollToSection?.(faqRef)}

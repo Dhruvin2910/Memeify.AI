@@ -47,7 +47,7 @@ function App() {
   return (
     <BrowserRouter>
       <Routes>
-        <Route path="/" element={<Home user={user} selectedCaption={selectedCaption} setSelectedCaption={setSelectedCaption} selectedMeme={selectedMeme} setSelectedMeme={setSelectedMeme}/>} />
+        <Route path="/home" element={<Home user={user} selectedCaption={selectedCaption} setSelectedCaption={setSelectedCaption} selectedMeme={selectedMeme} setSelectedMeme={setSelectedMeme}/>} />
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
         <Route path='/preview' element={<Preview 
@@ -78,7 +78,7 @@ function App() {
         user={user}  />} />
         <Route path="/forgotpassword" element={<ForgotPassword />} />
         <Route path="/mememaker" element={<MemeMaker />} />
-        <Route path='/main' element={<Main />} />
+        <Route path='/' element={<Main />} />
         <Route path='/exploreMeme' element={<ExploreMemes user={user} />}/>
       </Routes>
       <ToastContainer />
