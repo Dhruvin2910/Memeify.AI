@@ -324,6 +324,7 @@ const ExploreMemes = ({ user }) => {
         )}
       </div>
     </div>
+    
   );
 };
 

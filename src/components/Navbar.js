@@ -13,7 +13,7 @@ const Navbar = ({ user, scrollToSection, refs }) => {
   const location = useLocation();
   const currentPath = location.pathname;
 
-  const buttonText = currentPath === '/signup' ? 'Login' : 'Signup';
+  const buttonText = currentPath === '/login' ? 'Signup' : 'Login';
 
   useEffect(() => {
     const fetchUsername = async () => {
@@ -48,10 +48,10 @@ const Navbar = ({ user, scrollToSection, refs }) => {
   };
 
   const handleLogin = () => {
-    if (currentPath === '/signup') {
-      navigate('/login');
-    } else {
+    if (currentPath === '/login') {
       navigate('/signup');
+    } else {
+      navigate('/login');
     }
   };
 

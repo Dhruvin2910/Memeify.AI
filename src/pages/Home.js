@@ -5,6 +5,7 @@ import Navbar from '../components/Navbar';
 import Spinner from '../components/Spinner';
 import { useNavigate } from 'react-router-dom';
 
+
 const Home = ({ user, selectedMeme, setSelectedMeme, selectedCaption, setSelectedCaption }) => {
   console.log('Home - selectedCaption:', selectedCaption);
   console.log('Home - selectedMeme:', selectedMeme);

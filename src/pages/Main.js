@@ -291,57 +291,50 @@ const Main = () => {
       </section>
 
 
-      {/* FAQ SECTION */}
-      <section ref={faqRef} className="py-16 bg-gradient-to-b from-gray-700 to-gray-900">
+      {/* FAQ */}
+      <section ref={faqRef} className="py-16 bg-gradient-to-b from-slate-800 to-slate-900">
         <div className="max-w-5xl mx-auto px-4">
-          <h2 className="text-3xl text-white font-bold text-center mb-10">Frequently Asked Questions</h2>
+          <h2 className="text-3xl text-cyan-400 font-bold text-center mb-10">Frequently Asked Questions</h2>
           <div className="max-w-xl mx-auto mt-10">
             {faqs.map((faq, index) => (
-              <div key={index} className="border bg-blue-200 rounded-lg mb-2 overflow-hidden">
-            {/* Question */}
-              <button
-                    onClick={() => toggleAccordion(index)}
-                    className="w-full flex justify-between items-center px-5 py-4 bg-blue-200 hover:bg-blue-300 text-left"
-                  >
-                  <span className="font-bold text-md text-gray-800 flex">{faq.question}</span>
+              <div key={index} className="border border-slate-700 bg-slate-800 rounded-lg mb-2 overflow-hidden">
+                <button
+                  onClick={() => toggleAccordion(index)}
+                  className="w-full flex justify-between items-center px-5 py-4 text-left text-gray-200 hover:bg-slate-700"
+                >
+                  <span className="font-bold text-md">{faq.question}</span>
                   <svg
-                    className={`w-5 h-5 text-gray-600 transform transition-transform duration-300 ${
-                    openIndex === index ? 'rotate-180' : ''
-                  }`}
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
+                    className={`w-5 h-5 transform transition-transform duration-300 ${openIndex === index ? 'rotate-180' : ''}`}
+                    fill="none" stroke="currentColor" viewBox="0 0 24 24"
                   >
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                </svg>
-              </button>
-
-              {/* Animated Answer */}
-              <AnimatePresence initial={false}>
-                {openIndex === index && (
-                  <motion.div
-                    key="content"
-                    initial="collapsed"
-                    animate="open"
-                    exit="collapsed"
-                    variants={{
-                      open: { opacity: 1, height: 'auto' },
-                      collapsed: { opacity: 0, height: 0 }
-                    }}
-                    transition={{ duration: 0.4, ease: 'easeInOut' }}
-                    className="px-5 overflow-hidden text-gray-700 bg-white"
-                  >
-                    <div className="py-4 flex items-start">
-                      <p className="text-base text-gray-700">{faq.answer}</p>
-                    </div>
-                  </motion.div>
-                )}
-              </AnimatePresence>
-            </div>
-          ))}
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                  </svg>
+                </button>
+                <AnimatePresence initial={false}>
+                  {openIndex === index && (
+                    <motion.div
+                      key="content"
+                      initial="collapsed"
+                      animate="open"
+                      exit="collapsed"
+                      variants={{
+                        open: { opacity: 1, height: 'auto' },
+                        collapsed: { opacity: 0, height: 0 }
+                      }}
+                      transition={{ duration: 0.4, ease: 'easeInOut' }}
+                      className="px-5 overflow-hidden text-gray-300 bg-slate-900"
+                    >
+                      <div className="py-4">
+                        <p>{faq.answer}</p>
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
+            ))}
+          </div>
         </div>
-      </div>
-    </section>
+      </section>
 
 
       {/* Final CTA */}
